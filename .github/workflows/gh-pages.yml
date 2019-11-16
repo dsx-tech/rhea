@@ -3,7 +3,8 @@ name: github pages
 on:
   push:
     branches:
-    - documentation
+    - master
+      #- documentation
 
 jobs:
   build-deploy:
