@@ -3,14 +3,14 @@ name: github pages
 on:
   push:
     branches:
-    - master
-      #- documentation
+    - 'documentation'
+     #- documentation
 
 jobs:
   build-deploy:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@documentation
+    - uses: actions/checkout@master
       with:
         submodules: true
 
