@@ -10,4 +10,4 @@ pygmentsCodeFences = true
 
 
 [params]
-    BookSection = '*'
+    BookSection = 'docs'
