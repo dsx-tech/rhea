@@ -1,0 +1,45 @@
+@startuml
+left to right direction
+
+
+class PropertyDescription {
+    +key: String
+    +type: ProertyType
+}
+PropertyDescription <|-- StringPropertyDescription
+PropertyDescription <|-- LongPropertyDescription
+PropertyDescription <|-- DoublePropertyDescription
+PropertyDescription <|-- CustomPropertyDescription
+
+class RawProperty {
+    +description: PropertyDescription
+    +value: Any
+}
+RawProperty <|-- StringProperty
+RawProperty <|-- LongProperty
+RawProperty <|-- DoubleProperty
+RawProperty <|-- CustomProperty
+
+interface ConfigSource {
+    +subscribe(Channel<RawProperty[]>)
+}
+
+abstract class ConfigManager {
+    -channel: Channel<RawProperty[]>
+    -state: Map<PropertyDescription, Reloadable>
+
+    +addSource(source: ConfigSource)
+    +get(PropertyDescription): Reloadable
+}
+
+class "Reloadable<E>" {
+    -observable: Flow
+    +get(): E
+    +onChange()
+}
+
+ConfigManager *-- ConfigurationSource
+ConfigManager *-- ConfigSource
+ConfigManager *-- "Reloadable<E>"
+
+@enduml
