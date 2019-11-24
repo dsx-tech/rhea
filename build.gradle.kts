@@ -12,7 +12,13 @@ repositories {
 }
 
 dependencies {
+    val spekVersion = "2.0.8"
+
     implementation(kotlin("stdlib-jdk8"))
+
+    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
+    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
+    testRuntimeOnly(kotlin("reflect"))
 }
 
 tasks.withType<KotlinCompile> {
