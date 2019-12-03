@@ -22,46 +22,46 @@ class FileConfigSource(private val directory: Path, private val fileName: String
 
     @ObsoleteCoroutinesApi
     override suspend fun subscribe(dataStream: Channel<RawProperty>) {
-            GlobalScope.launch(newSingleThreadContext("coroutine"))
-            {
-                try {
-                    for (string in Files.readAllLines(file)) {
+        GlobalScope.launch(newSingleThreadContext("coroutine"))
+        {
+            try {
+                for (string in Files.readAllLines(file)) {
+                    val splitted = string.split(' ')
+                    dataStream.send(
+                        RawString(
+                            StringDescription(splitted[0]),
+                            splitted[1]
+                        )
+                    )
+                }
+                while (true) {
+                    var updated = try {
+                        key = watchService!!.take();
+                        Files.readAllLines(file)
+
+                    } catch (e: NoSuchFileException) {
+                        delay(10)
+                        Files.readAllLines(file)
+                    }
+                    for (string in giveMeListOfChanges(config, updated)) {
                         val splitted = string.split(' ')
                         dataStream.send(
                             RawString(
-                                StringDescription(splitted[0]),
-                                splitted[1]
+                                StringDescription(
+                                    splitted[0]
+                                ), splitted[1]
                             )
                         )
                     }
-                    while (true) {
-                        var updated = try {
-                            key = watchService!!.take();
-                            Files.readAllLines(file)
-
-                        } catch (e: NoSuchFileException) {
-                            delay(10)
-                            Files.readAllLines(file)
-                        }
-                        for (string in giveMeListOfChanges(config, updated)) {
-                            val splitted = string.split(' ')
-                            dataStream.send(
-                                RawString(
-                                    StringDescription(
-                                        splitted[0]
-                                    ), splitted[1]
-                                )
-                            )
-                        }
-                        key!!.reset();
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace();
+                    key!!.reset();
                 }
+            } catch (e: Exception) {
+                e.printStackTrace();
             }
+        }
     }
 
-    private suspend fun giveMeListOfChanges(previous: List<String>?, updated: List<String>): List<String> {
+    private fun giveMeListOfChanges(previous: List<String>?, updated: List<String>): List<String> {
         val changes: LinkedList<String> = LinkedList()
         if (previous == null) {
             config = updated
