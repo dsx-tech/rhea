@@ -1,12 +1,11 @@
 package uk.dsx.reactiveconfig
 
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-
-class Reloadable<T>(@Volatile private var value: T, private var observable: Flow<T>, scope: CoroutineScope) {
+class Reloadable<T>(@Volatile private var value: T, private var observable: Flow<T>) {
     init {
-        scope.launch {
+        ConfigManagerBase.configScope.launch {
             observable.collect { newValue ->
                 value = newValue
             }

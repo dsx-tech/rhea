@@ -1,13 +1,13 @@
-package uk.dsx.reactiveconfig
+package uk.dsx.reactiveconfig.configsources
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import uk.dsx.reactiveconfig.ConfigManagerBase
+import uk.dsx.reactiveconfig.RawProperty
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
-import uk.dsx.reactiveconfig.interfaces.RawProperty
 import java.io.File
 import java.nio.file.*
 import java.util.*
-import kotlin.concurrent.thread
 
 class FileConfigSource(private val directory: Path, private val fileName: String) :
     ConfigSource {
@@ -22,17 +22,12 @@ class FileConfigSource(private val directory: Path, private val fileName: String
 
     @ObsoleteCoroutinesApi
     override suspend fun subscribe(dataStream: Channel<RawProperty>) {
-        GlobalScope.launch(newSingleThreadContext("coroutine"))
+        ConfigManagerBase.configScope.launch(newSingleThreadContext("coroutine"))
         {
             try {
                 for (string in Files.readAllLines(file)) {
                     val splitted = string.split(' ')
-                    dataStream.send(
-                        RawString(
-                            StringDescription(splitted[0]),
-                            splitted[1]
-                        )
-                    )
+                    dataStream.send(RawProperty(splitted[0], splitted[1]))
                 }
                 while (true) {
                     var updated = try {
@@ -45,13 +40,7 @@ class FileConfigSource(private val directory: Path, private val fileName: String
                     }
                     for (string in giveMeListOfChanges(config, updated)) {
                         val splitted = string.split(' ')
-                        dataStream.send(
-                            RawString(
-                                StringDescription(
-                                    splitted[0]
-                                ), splitted[1]
-                            )
-                        )
+                        dataStream.send(RawProperty(splitted[0], splitted[1]))
                     }
                     key!!.reset();
                 }
