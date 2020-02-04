@@ -21,25 +21,24 @@ class FileConfigSource(private val directory: Path, private val fileName: String
     }
 
     @ObsoleteCoroutinesApi
-    override suspend fun subscribe(dataStream: Channel<RawProperty>) {
+    override suspend fun subscribe(dataStream: Channel<RawProperty<Any>>) {
         ConfigManagerBase.configScope.launch(newSingleThreadContext("coroutine"))
         {
             try {
                 for (string in Files.readAllLines(file)) {
-                    val splitted = string.split(' ')
+                    val splitted = string.split('=')
                     dataStream.send(RawProperty(splitted[0], splitted[1]))
                 }
                 while (true) {
                     var updated = try {
-                        key = watchService!!.take();
+                        key = watchService!!.take()
                         Files.readAllLines(file)
-
                     } catch (e: NoSuchFileException) {
                         delay(10)
                         Files.readAllLines(file)
                     }
                     for (string in giveMeListOfChanges(config, updated)) {
-                        val splitted = string.split(' ')
+                        val splitted = string.split('=')
                         dataStream.send(RawProperty(splitted[0], splitted[1]))
                     }
                     key!!.reset();
