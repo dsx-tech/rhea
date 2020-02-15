@@ -11,7 +11,7 @@ object ReloadableTest : Spek({
         0,
         flow {
             for (i in 1 until 10) {
-                emit(RawProperty("someProperty", i))
+                emit(i)
             }
         }
     )
@@ -20,7 +20,7 @@ object ReloadableTest : Spek({
         0,
         flow {
             for (i in 1 until 5) {
-                emit(RawProperty("anotherProperty", i))
+                emit(i)
             }
         }
     )

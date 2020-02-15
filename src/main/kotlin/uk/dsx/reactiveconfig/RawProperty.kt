@@ -1,4 +1,3 @@
 package uk.dsx.reactiveconfig
 
-class RawProperty<T>(val key: String, val value: T) {
-}
+class RawProperty(val key: String, val value: String)
