@@ -31,10 +31,10 @@ abstract class ConfigManagerBase {
             if (!::reloadable.isInitialized) {
                 reloadable = Reloadable(initial,
                     flow {
-                        flowOfChanges.filter {
-                            it.key == property.name
-                        }.collect {
-                            val result = parse(it.value)
+                        flowOfChanges.filter { rawProperty: RawProperty ->
+                            rawProperty.key == property.name
+                        }.collect { rawProperty: RawProperty ->
+                            val result = parse(rawProperty.value)
                             if (result != null) {
                                 this.emit(result as T)
                             } else {
@@ -92,5 +92,4 @@ abstract class ConfigManagerBase {
             return value.toBoolean()
         }
     }
-
 }
