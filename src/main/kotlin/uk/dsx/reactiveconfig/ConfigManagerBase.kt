@@ -30,17 +30,11 @@ abstract class ConfigManagerBase {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
             if (!::reloadable.isInitialized) {
                 reloadable = Reloadable(initial,
-                    flow {
-                        flowOfChanges.filter { rawProperty: RawProperty ->
-                            rawProperty.key == property.name
-                        }.collect { rawProperty: RawProperty ->
-                            val result = parse(rawProperty.value)
-                            if (result != null) {
-                                this.emit(result as T)
-                            } else {
-                                error("Wrong type of property: ${property.name}")
-                            }
-                        }
+                    flowOfChanges.filter { rawProperty: RawProperty ->
+                        rawProperty.key == property.name
+                    }.map { rawProperty: RawProperty ->
+                        parse(rawProperty.value)?.let { it }
+                            ?: error("Wrong type of property: ${property.name}")
                     }
                 )
                 properties[property.name] = reloadable
