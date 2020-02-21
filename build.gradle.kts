@@ -21,6 +21,9 @@ dependencies {
     testImplementation(kotlin("test"))
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
     testRuntimeOnly(kotlin("reflect"))
+
+    compile("org.slf4j:slf4j-simple:1.7.26")
+    compile("io.github.microutils:kotlin-logging:1.7.8")
 }
 
 tasks.withType<KotlinCompile> {
