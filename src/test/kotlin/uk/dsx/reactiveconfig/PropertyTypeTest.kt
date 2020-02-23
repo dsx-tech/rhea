@@ -3,13 +3,12 @@ package uk.dsx.reactiveconfig
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
 object PropertyTypeTest : Spek({
     class Manager : ConfigManagerBase()
 
     val manager = Manager()
-    val source = ConfigProvider()
+    val source = ConfigMock()
     manager.addSource(source)
 
     describe("a declaration") {
@@ -27,15 +26,14 @@ object PropertyTypeTest : Spek({
             if (source.channel != null) break
         }
 
-        source.getChanges(listOf("port"))
-        source.getChanges(listOf("port"))
+        source.pushChanges("port", "1313")
 
         while (true) {
             if (port.get() != 0) break
         }
 
-        it("value of port should have been changed") {
-            assertNotEquals(0, port.get())
+        it("value of port should have been changed to 1313") {
+            assertEquals(1313, port.get())
         }
     }
 })

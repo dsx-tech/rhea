@@ -19,13 +19,13 @@ object ManagerTest : Spek({
     }
 
     describe("a subscription") {
-        val source = ConfigProvider()
+        val source = ConfigMock()
         manager.addSource(source)
 
         while (true) {
             if (source.channel != null) break
         }
-        source.getChanges(listOf("port"))
+        source.pushChanges("port", "1234")
 
         ConfigManagerBase.configScope.launch {
             ConfigManagerBase.flowOfChanges.collect {
@@ -34,6 +34,5 @@ object ManagerTest : Spek({
                 }
             }
         }
-
     }
 })
