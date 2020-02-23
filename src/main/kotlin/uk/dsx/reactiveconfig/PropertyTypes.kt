@@ -1,13 +1,13 @@
 package uk.dsx.reactiveconfig
 
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import mu.KotlinLogging
 import kotlin.reflect.KProperty
 
 private val logger = KotlinLogging.logger {}
 
-abstract class PropertyType<T> {
+abstract class PropertyType<T : Any> {
     private lateinit var reloadable: Reloadable<T>
     // should it be taken from initial state of config?
     abstract var initial: T
@@ -17,11 +17,10 @@ abstract class PropertyType<T> {
             reloadable = Reloadable(initial,
                 ConfigManagerBase.flowOfChanges.filter { rawProperty: RawProperty ->
                     rawProperty.key == property.name
-                }.map { rawProperty: RawProperty ->
+                }.mapNotNull { rawProperty: RawProperty ->
                     parse(rawProperty.value).also { result: T? ->
                         result ?: logger.error("Wrong type of property: ${property.name}")
                     }
-                    // parse(rawProperty.value) ?: logger.error("Wrong type of property: ${property.name}")
                 }
             )
             ConfigManagerBase.properties[property.name] = reloadable
