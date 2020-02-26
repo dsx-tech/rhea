@@ -15,7 +15,7 @@ abstract class PropertyType<T : Any> {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
         if (!::reloadable.isInitialized) {
             reloadable = Reloadable(initial,
-                ConfigManagerBase.flowOfChanges.filter { rawProperty: RawProperty ->
+                ConfigManager.flowOfChanges.filter { rawProperty: RawProperty ->
                     rawProperty.key == property.name
                 }.mapNotNull { rawProperty: RawProperty ->
                     parse(rawProperty.value).also { result: T? ->
@@ -23,7 +23,7 @@ abstract class PropertyType<T : Any> {
                     }
                 }
             )
-            ConfigManagerBase.properties[property.name] = reloadable
+            ConfigManager.properties[property.name] = reloadable
         }
         return reloadable
     }

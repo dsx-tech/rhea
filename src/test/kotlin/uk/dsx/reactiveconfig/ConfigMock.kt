@@ -15,7 +15,7 @@ class ConfigMock : ConfigSource {
         if (channel == null) {
             error("You didn't subscribe to this ConfigSource")
         } else {
-            ConfigManagerBase.configScope.launch {
+            ConfigManager.configScope.launch {
                 channel!!.send(RawProperty(key, value))
             }
         }

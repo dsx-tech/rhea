@@ -8,9 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 object ManagerTest : Spek({
-    class Manager : ConfigManagerBase()
-
-    val manager = Manager()
+    val manager = ConfigManager
 
     describe("a creation") {
         it("should be not null") {
@@ -27,8 +25,8 @@ object ManagerTest : Spek({
         }
         source.pushChanges("port", "1234")
 
-        ConfigManagerBase.configScope.launch {
-            ConfigManagerBase.flowOfChanges.collect {
+        ConfigManager.configScope.launch {
+            ConfigManager.flowOfChanges.collect {
                 it("flow should contain RawProperty with key=port from subscribed source") {
                     assertEquals("port", it.key)
                 }

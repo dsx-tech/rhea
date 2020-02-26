@@ -5,9 +5,7 @@ import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
 
 object PropertyTypeTest : Spek({
-    class Manager : ConfigManagerBase()
-
-    val manager = Manager()
+    val manager = ConfigManager
     val source = ConfigMock()
     manager.addSource(source)
 

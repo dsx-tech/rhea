@@ -2,7 +2,7 @@ package uk.dsx.reactiveconfig.configsources
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import uk.dsx.reactiveconfig.ConfigManagerBase
+import uk.dsx.reactiveconfig.ConfigManager
 import uk.dsx.reactiveconfig.RawProperty
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 import java.io.File
@@ -22,7 +22,7 @@ class FileConfigSource(private val directory: Path, private val fileName: String
 
     @ObsoleteCoroutinesApi
     override suspend fun subscribe(dataStream: Channel<RawProperty>) {
-        ConfigManagerBase.configScope.launch(newSingleThreadContext("coroutine"))
+        ConfigManager.configScope.launch(newSingleThreadContext("coroutine"))
         {
             try {
                 for (string in Files.readAllLines(file)) {

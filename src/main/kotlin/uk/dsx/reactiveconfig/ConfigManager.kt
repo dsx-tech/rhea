@@ -7,13 +7,11 @@ import kotlinx.coroutines.launch
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 import kotlin.coroutines.EmptyCoroutineContext
 
-abstract class ConfigManagerBase {
-    companion object {
-        val configScope = CoroutineScope(EmptyCoroutineContext)
-        val channelOfChanges: Channel<RawProperty> = Channel(Channel.BUFFERED)
-        val properties: HashMap<String, Reloadable<*>> = HashMap()
-        val flowOfChanges: Flow<RawProperty> = channelOfChanges.consumeAsFlow()
-    }
+object ConfigManager {
+    val configScope = CoroutineScope(EmptyCoroutineContext)
+    private val channelOfChanges: Channel<RawProperty> = Channel(Channel.BUFFERED)
+    val properties: HashMap<String, Reloadable<*>> = HashMap()
+    val flowOfChanges: Flow<RawProperty> = channelOfChanges.consumeAsFlow()
 
     fun addSource(source: ConfigSource) {
         configScope.launch {
