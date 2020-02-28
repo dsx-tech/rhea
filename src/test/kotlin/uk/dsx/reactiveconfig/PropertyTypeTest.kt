@@ -10,7 +10,7 @@ object PropertyTypeTest : Spek({
     manager.addSource(source)
 
     describe("a declaration") {
-        val server by StringType()
+        val server by StringType
 
         it("should contain initial value") {
             assertEquals("", server.get())
@@ -18,14 +18,12 @@ object PropertyTypeTest : Spek({
     }
 
     describe("testing IntType") {
-        val port by IntType()
+        val port by IntType
 
         while (true) {
             if (source.channel != null) break
         }
-
         source.pushChanges("port", "1313")
-
         while (true) {
             if (port.get() != 0) break
         }
