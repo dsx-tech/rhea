@@ -1,74 +1,21 @@
 package uk.dsx.reactiveconfig
 
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.mapNotNull
-import mu.KotlinLogging
 import kotlin.reflect.KProperty
 
-private val logger = KotlinLogging.logger {}
-
-abstract class PropertyType<T : Any> {
-    private lateinit var reloadable: Reloadable<T>
-    // should it be taken from initial state of config?
-    abstract var initial: T
-
+class PropertyType<T : Any>(val initial: T, val parse: (String) -> T?) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
-        if (!::reloadable.isInitialized) {
-            reloadable = Reloadable(initial,
-                ConfigManager.flowOfChanges.filter { rawProperty: RawProperty ->
-                    rawProperty.key == property.name
-                }.mapNotNull { rawProperty: RawProperty ->
-                    parse(rawProperty.value).also { result: T? ->
-                        result ?: logger.error("Wrong type of property: ${property.name}")
-                    }
-                }
-            )
-            ConfigManager.properties[property.name] = reloadable
-        }
-        return reloadable
-    }
-
-    abstract fun parse(value: String): T?
-}
-
-class StringType : PropertyType<String>() {
-    override var initial: String = ""
-    override fun parse(value: String): String? {
-        return value
+        return ReloadableFactory.createReloadable(property.name, this)
     }
 }
 
-class IntType : PropertyType<Int>() {
-    override var initial: Int = 0
-    override fun parse(value: String): Int? {
-        return value.toIntOrNull()
-    }
-}
+val StringType = PropertyType("", { it })
 
-class LongType : PropertyType<Long>() {
-    override var initial: Long = 0
-    override fun parse(value: String): Long? {
-        return value.toLongOrNull()
-    }
-}
+val IntType = PropertyType(0, String::toIntOrNull)
 
-class FloatType : PropertyType<Float>() {
-    override var initial: Float = 0.0F
-    override fun parse(value: String): Float? {
-        return value.toFloatOrNull()
-    }
-}
+val LongType = PropertyType(0, String::toLongOrNull)
 
-class DoubleType : PropertyType<Double>() {
-    override var initial: Double = 0.0
-    override fun parse(value: String): Double? {
-        return value.toDoubleOrNull()
-    }
-}
+val FloatType = PropertyType(0.0F, String::toFloatOrNull)
 
-class BooleanType : PropertyType<Boolean>() {
-    override var initial: Boolean = false
-    override fun parse(value: String): Boolean? {
-        return value.toBoolean()
-    }
-}
+val DoubleType = PropertyType(0.0, String::toDoubleOrNull)
+
+val BooleanType = PropertyType(false, String::toBoolean)
