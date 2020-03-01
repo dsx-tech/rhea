@@ -11,7 +11,11 @@ object ConfigManager {
     val configScope = CoroutineScope(EmptyCoroutineContext)
     private val channelOfChanges: Channel<RawProperty> = Channel(Channel.BUFFERED)
     val properties: HashMap<String, Reloadable<*>> = HashMap()
-    val flowOfChanges: Flow<RawProperty> = channelOfChanges.consumeAsFlow()
+    val flowOfChanges: Flow<RawProperty> = flow {
+        channelOfChanges.consumeAsFlow().collect {
+            emit(it)
+        }
+    }
 
     fun addSource(source: ConfigSource) {
         configScope.launch {
