@@ -21,8 +21,8 @@ class FileConfigSource(private val directory: Path, private val fileName: String
     }
 
     @ObsoleteCoroutinesApi
-    override suspend fun subscribe(dataStream: Channel<RawProperty>) {
-        ConfigManager.configScope.launch(newSingleThreadContext("coroutine"))
+    override suspend fun subscribe(dataStream: Channel<RawProperty>, scope: CoroutineScope) {
+        scope.launch(newSingleThreadContext("coroutine"))
         {
             try {
                 for (string in Files.readAllLines(file)) {

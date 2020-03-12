@@ -5,12 +5,12 @@ import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
 
 object PropertyTypeTest : Spek({
-    val manager = ConfigManager
+    val config = ReactiveConfig {}
     val source = ConfigMock()
-    manager.addSource(source)
+    config.addConfigSource(source)
 
     describe("a declaration") {
-        val server by StringType
+        val server by config.base.stringType
 
         it("should contain initial value") {
             assertEquals("", server.get())
@@ -18,7 +18,7 @@ object PropertyTypeTest : Spek({
     }
 
     describe("testing IntType") {
-        val port by IntType
+        val port by config.base.intType
 
         while (true) {
             if (source.channel != null) break

@@ -1,9 +1,11 @@
 package uk.dsx.reactiveconfig
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertEquals
 
 object ReloadableTest : Spek({
@@ -13,7 +15,8 @@ object ReloadableTest : Spek({
             for (i in 1 until 10) {
                 emit(i)
             }
-        }
+        },
+        CoroutineScope(EmptyCoroutineContext)
     )
 
     val reloadable2: Reloadable<Int> = Reloadable(
@@ -22,7 +25,8 @@ object ReloadableTest : Spek({
             for (i in 1 until 5) {
                 emit(i)
             }
-        }
+        },
+        CoroutineScope(EmptyCoroutineContext)
     )
 
     describe("calling onChange()") {

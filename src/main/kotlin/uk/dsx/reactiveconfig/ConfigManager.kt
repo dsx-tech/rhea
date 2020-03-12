@@ -5,12 +5,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.EmptyCoroutineContext
 
-object ConfigManager {
+class ConfigManager {
     val configScope = CoroutineScope(EmptyCoroutineContext)
     private val channelOfChanges: Channel<RawProperty> = Channel(Channel.BUFFERED)
-    val properties: HashMap<String, Reloadable<*>> = HashMap()
+    val properties: ConcurrentHashMap<String, Reloadable<*>> = ConcurrentHashMap()
     val flowOfChanges: Flow<RawProperty> = flow {
         channelOfChanges.consumeAsFlow().collect {
             emit(it)
@@ -19,7 +20,7 @@ object ConfigManager {
 
     fun addSource(source: ConfigSource) {
         configScope.launch {
-            source.subscribe(channelOfChanges)
+            source.subscribe(channelOfChanges, configScope)
         }
     }
 }
