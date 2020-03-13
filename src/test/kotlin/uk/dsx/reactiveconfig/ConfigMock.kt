@@ -7,7 +7,7 @@ import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
 class ConfigMock : ConfigSource {
     var channel: Channel<RawProperty>? = null
-    var scope: CoroutineScope? = null
+    private var scope: CoroutineScope? = null
 
     override suspend fun subscribe(dataStream: Channel<RawProperty>, scope: CoroutineScope) {
         channel = dataStream
@@ -19,7 +19,7 @@ class ConfigMock : ConfigSource {
             error("You didn't subscribe to this ConfigSource")
         } else {
             scope?.launch {
-                channel!!.send(RawProperty(key, value))
+                channel!!.send(RawProperty(key, StringNode(value)))
             }
         }
     }

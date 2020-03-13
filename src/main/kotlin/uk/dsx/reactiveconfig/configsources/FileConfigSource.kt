@@ -2,8 +2,8 @@ package uk.dsx.reactiveconfig.configsources
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import uk.dsx.reactiveconfig.ConfigManager
 import uk.dsx.reactiveconfig.RawProperty
+import uk.dsx.reactiveconfig.StringNode
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 import java.io.File
 import java.nio.file.*
@@ -27,7 +27,7 @@ class FileConfigSource(private val directory: Path, private val fileName: String
             try {
                 for (string in Files.readAllLines(file)) {
                     val splitted = string.split('=')
-                    dataStream.send(RawProperty(splitted[0], splitted[1]))
+                    dataStream.send(RawProperty(splitted[0], StringNode(splitted[1])))
                 }
                 while (true) {
                     var updated = try {
@@ -39,7 +39,7 @@ class FileConfigSource(private val directory: Path, private val fileName: String
                     }
                     for (string in giveMeListOfChanges(config, updated)) {
                         val splitted = string.split('=')
-                        dataStream.send(RawProperty(splitted[0], splitted[1]))
+                        dataStream.send(RawProperty(splitted[0], StringNode(splitted[1])))
                     }
                     key!!.reset();
                 }
