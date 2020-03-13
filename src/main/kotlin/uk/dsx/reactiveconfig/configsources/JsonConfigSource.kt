@@ -5,6 +5,7 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import uk.dsx.reactiveconfig.*
@@ -15,20 +16,21 @@ import java.io.*
 
 class JsonConfigSource : ConfigSource {
     private val file: File
-
-    constructor(directory: Path, fileName: String) {
-        file = Paths.get(directory.toAbsolutePath().toString() + File.separator + fileName).toFile()
-    }
-
-    constructor(uri: URI) {
-        file = Paths.get(uri).toFile() ?: error("Cannot open file: $uri")
-    }
-
     private var channel: Channel<RawProperty>? = null
     private val map: HashMap<String, Node> = HashMap()
 
     private val watchService: WatchService? = FileSystems.getDefault().newWatchService()
     private var key: WatchKey? = null
+
+    constructor(directory: Path, fileName: String) {
+        directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        file = Paths.get(directory.toAbsolutePath().toString() + File.separator + fileName).toFile()
+    }
+
+    constructor(uri: URI) {
+        Paths.get(uri).register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        file = Paths.get(uri).toFile() ?: error("Cannot open file: $uri")
+    }
 
     override suspend fun subscribe(dataStream: Channel<RawProperty>, scope: CoroutineScope) {
         channel = dataStream
@@ -47,12 +49,17 @@ class JsonConfigSource : ConfigSource {
                 }
                 inputStream.close()
 
-
                 while (true) {
                     inputStream = file.inputStream()
-                    key = watchService!!.take()
 
-                    parsed = parser.parse(inputStream) as JsonObject
+                    parsed = try {
+                        key = watchService!!.take()
+                        parser.parse(inputStream) as JsonObject
+                    } catch (e: Exception) {
+                        delay(10)
+                        parser.parse(inputStream) as JsonObject
+                    }
+
                     for (obj in parsed.map) {
                         toNode(obj.value).also {
                             if (map[obj.key] != it) {
@@ -61,7 +68,6 @@ class JsonConfigSource : ConfigSource {
                             }
                         }
                     }
-
                     key!!.reset();
                     inputStream.close()
                 }

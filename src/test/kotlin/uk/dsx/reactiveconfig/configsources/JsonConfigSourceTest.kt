@@ -32,7 +32,7 @@ object JsonConfigSourceTest : Spek({
             if (!isSomethingOn.get()) break
         }
 
-        it("should contain value 'someInfo' sent from JsonConfigSource") {
+        it("should contain value 'true' sent from JsonConfigSource") {
             assertTrue(isSomethingOn.get())
         }
     }
@@ -43,30 +43,30 @@ object JsonConfigSourceTest : Spek({
             if (property.get() != "") break
         }
 
-        it("should contain value 'true' sent from JsonConfigSource") {
+        it("should contain value 'someInfo' sent from JsonConfigSource") {
             assertEquals("someInfo", property.get())
         }
     }
 
-    describe("checks reading properly ObjectNode from json") {
-        var server: ObjectNode? = null
-
-        config.manager.configScope.launch {
-            config.manager.flowOfChanges.
-                filter {
-                    it.key == "server"
-                }.collect {
-                server = it.value as ObjectNode
-            }
-        }
-
-        while (true) {
-            if (server != null) break
-        }
-
-        it("should contain value 1234 sent from JsonConfigSource") {
-                assertEquals(1234, (server?.value?.get("port") as IntNode).value)
-
-        }
-    }
+//    describe("checks reading properly ObjectNode from json") {
+//        var server: ObjectNode? = null
+//
+//        config.manager.configScope.launch {
+//            config.manager.flowOfChanges.
+//                filter {
+//                    it.key == "server"
+//                }.collect {
+//                server = it.value as ObjectNode
+//            }
+//        }
+//
+//        while (true) {
+//            if (server != null) break
+//        }
+//
+//        it("should contain value 1234 sent from JsonConfigSource") {
+//                assertEquals(1234, (server?.value?.get("port") as IntNode).value)
+//
+//        }
+//    }
 })
