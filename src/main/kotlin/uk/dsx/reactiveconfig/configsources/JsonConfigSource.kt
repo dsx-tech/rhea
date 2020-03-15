@@ -16,11 +16,11 @@ import java.io.*
 
 class JsonConfigSource : ConfigSource {
     private val file: File
-    private var channel: Channel<RawProperty>? = null
-    private val map: HashMap<String, Node> = HashMap()
+    private lateinit var channel: Channel<RawProperty>
+    private val map: HashMap<String, Node?> = HashMap()
 
-    private val watchService: WatchService? = FileSystems.getDefault().newWatchService()
-    private var key: WatchKey? = null
+    private val watchService: WatchService = FileSystems.getDefault().newWatchService()
+    private lateinit var key: WatchKey
 
     constructor(directory: Path, fileName: String) {
         directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
@@ -39,12 +39,12 @@ class JsonConfigSource : ConfigSource {
         scope.launch(newSingleThreadContext("watching thread")) {
             try {
                 var inputStream = file.inputStream()
-
                 var parsed = parser.parse(inputStream) as JsonObject
+
                 for (obj in parsed.map) {
                     toNode(obj.value).also {
                         map[obj.key] = it
-                        channel!!.send(RawProperty(obj.key, it))
+                        channel.send(RawProperty(obj.key, it))
                     }
                 }
                 inputStream.close()
@@ -53,7 +53,7 @@ class JsonConfigSource : ConfigSource {
                     inputStream = file.inputStream()
 
                     parsed = try {
-                        key = watchService!!.take()
+                        key = watchService.take()
                         parser.parse(inputStream) as JsonObject
                     } catch (e: Exception) {
                         delay(10)
@@ -64,43 +64,42 @@ class JsonConfigSource : ConfigSource {
                         toNode(obj.value).also {
                             if (map[obj.key] != it) {
                                 map[obj.key] = it
-                                channel!!.send(RawProperty(obj.key, it))
+                                channel.send(RawProperty(obj.key, it))
                             }
                         }
                     }
-                    key!!.reset();
+                    key.reset()
                     inputStream.close()
                 }
             } catch (e: Exception) {
-                println(e.stackTrace)
+                e.printStackTrace()
             }
         }
-
     }
 
-    fun toNode(obj: Any?): Node {
+    private fun toNode(obj: Any?): Node? {
         return when (obj) {
-            is Long -> IntNode(obj)
-            is Double -> FloatNode(obj)
+            is Int -> NumericNode(obj.toString())
+            is Long -> NumericNode(obj.toString())
+            is Float -> NumericNode(obj.toString())
+            is Double -> NumericNode(obj.toString())
             is Boolean -> BooleanNode(obj)
             is JsonArray<*> -> {
-                val result = mutableListOf<Node>()
+                val result = mutableListOf<Node?>()
                 for (el in obj.value) {
                     result.add(toNode(el))
                 }
                 ArrayNode(result)
             }
             is JsonObject -> {
-                val result = mutableMapOf<String, Node>()
+                val result = mutableMapOf<String, Node?>()
                 for (el in obj.map) {
                     result[el.key] = toNode(el.value)
                 }
                 ObjectNode(result)
             }
-            else -> {
-                if (obj.toString() == "null") NullNode(null)
-                else StringNode(obj.toString())
-            }
+            is String -> StringNode(obj.toString())
+            else -> null
         }
     }
 }
