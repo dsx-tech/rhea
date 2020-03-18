@@ -1,5 +1,8 @@
 package uk.dsx.reactiveconfig
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KProperty
 
 sealed class Node
@@ -9,11 +12,11 @@ data class StringNode(val value: String) : Node()
 data class ArrayNode(val value: MutableList<Node?>) : Node()
 data class BooleanNode(val value: Boolean) : Node()
 
-class PropertyTypeBase(val configManager: ConfigManager) {
+class PropertyTypeBase(val map: ConcurrentHashMap<String, Reloadable<*>>, val flowOfChanges: Flow<RawProperty>, val scope: CoroutineScope) {
 
     inner class PropertyType<T : Any>(val initial: T, val parse: (Node?) -> T?) {
-        operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T?> {
-            return ReloadableFactory.createReloadable(property.name, this, configManager)
+        operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
+            return ReloadableFactory.createReloadable(property.name, this, map, flowOfChanges, scope)
         }
     }
 
