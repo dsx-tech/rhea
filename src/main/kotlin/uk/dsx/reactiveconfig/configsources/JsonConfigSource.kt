@@ -4,7 +4,7 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
@@ -16,7 +16,7 @@ import java.io.*
 
 class JsonConfigSource : ConfigSource {
     private val file: File
-    private lateinit var channel: Channel<RawProperty>
+    private lateinit var channel: SendChannel<RawProperty>
     private val map: HashMap<String, Node?> = HashMap()
 
     private val watchService: WatchService = FileSystems.getDefault().newWatchService()
@@ -32,8 +32,8 @@ class JsonConfigSource : ConfigSource {
         file = Paths.get(uri).toFile() ?: error("Cannot open file: $uri")
     }
 
-    override suspend fun subscribe(dataStream: Channel<RawProperty>, scope: CoroutineScope) {
-        channel = dataStream
+    override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
+        channel = channelOfChanges
         val parser: Parser = Parser.default()
 
         scope.launch(newSingleThreadContext("watching thread")) {
@@ -98,7 +98,7 @@ class JsonConfigSource : ConfigSource {
                 }
                 ObjectNode(result)
             }
-            is String -> StringNode(obj.toString())
+            is String -> StringNode(obj)
             else -> null
         }
     }
