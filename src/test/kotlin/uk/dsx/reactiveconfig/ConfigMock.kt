@@ -2,25 +2,22 @@ package uk.dsx.reactiveconfig
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
 class ConfigMock : ConfigSource {
-    var channel: Channel<RawProperty>? = null
-    private var scope: CoroutineScope? = null
+    private lateinit var channel: SendChannel<RawProperty>
+    private lateinit var scope: CoroutineScope
 
-    override suspend fun subscribe(dataStream: Channel<RawProperty>, scope: CoroutineScope) {
-        channel = dataStream
+    override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
+        channel = channelOfChanges
         this.scope = scope
     }
 
     fun pushChanges(key: String, value: String) {
-        if (channel == null) {
-            error("You didn't subscribe to this ConfigSource")
-        } else {
-            scope?.launch {
-                channel!!.send(RawProperty(key, StringNode(value)))
-            }
+        scope.launch {
+            channel.send(RawProperty(key, StringNode(value)))
         }
     }
 }
