@@ -22,5 +22,6 @@ class ConfigManager {
         configScope.launch {
             source.subscribe(channelOfChanges, configScope)
         }
+        Thread.sleep(100)
     }
 }

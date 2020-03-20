@@ -10,19 +10,16 @@ import kotlin.test.assertNotNull
 object ConfigManagerTest : Spek({
     val manager = ConfigManager()
 
-    describe("a creation") {
+    describe("creation") {
         it("should be not null") {
             assertNotNull(manager)
         }
     }
 
-    describe("a subscription") {
+    describe("subscription") {
         val source = ConfigMock()
         manager.addSource(source)
 
-        while (true) {
-            if (source.channel != null) break
-        }
         source.pushChanges("port", "1234")
 
         manager.configScope.launch {

@@ -15,9 +15,22 @@ class ConfigMock : ConfigSource {
         this.scope = scope
     }
 
-    fun pushChanges(key: String, value: String) {
+    fun pushChanges(key: String, value: Any?) {
         scope.launch {
-            channel.send(RawProperty(key, StringNode(value)))
+            channel.send(
+                RawProperty(
+                    key,
+                    when (value) {
+                        is Int -> NumericNode(value.toString())
+                        is Long -> NumericNode(value.toString())
+                        is Float -> NumericNode(value.toString())
+                        is Double -> NumericNode(value.toString())
+                        is Boolean -> BooleanNode(value)
+                        is String -> StringNode(value)
+                        else -> null
+                    }
+                )
+            )
         }
     }
 }
