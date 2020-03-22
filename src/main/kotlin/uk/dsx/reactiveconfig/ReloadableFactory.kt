@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
-import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
@@ -13,7 +12,7 @@ object ReloadableFactory {
     fun <T> createReloadable(
         key: String,
         type: PropertyTypeBase.PropertyType<T>,
-        map: ConcurrentHashMap<String, Reloadable<*>>,
+        map: MutableMap<String, Reloadable<*>>,
         flowOfChanges: Flow<RawProperty>,
         scope: CoroutineScope
     ): Reloadable<T> {
@@ -23,8 +22,8 @@ object ReloadableFactory {
             }.map { rawProperty: RawProperty ->
                 type.parse(rawProperty.value).let {
                     when (it) {
-                        is Success -> it.value
-                        is Failure -> logger.error("Wrong type of property: $key")
+                        is ParseResult.Success -> it.value
+                        is ParseResult.Failure -> logger.error("Wrong type of property: $key")
                     }
                 }
             }.map {

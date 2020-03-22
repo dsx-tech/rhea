@@ -11,7 +11,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 class ConfigManager {
     val configScope = CoroutineScope(EmptyCoroutineContext)
     private val channelOfChanges: Channel<RawProperty> = Channel(Channel.BUFFERED)
-    val properties: ConcurrentHashMap<String, Reloadable<*>> = ConcurrentHashMap()
+    val properties: MutableMap<String, Reloadable<*>> = ConcurrentHashMap()
     val flowOfChanges: Flow<RawProperty> = flow {
         channelOfChanges.consumeAsFlow().collect {
             emit(it)
