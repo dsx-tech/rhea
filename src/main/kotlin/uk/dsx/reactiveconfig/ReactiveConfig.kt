@@ -21,4 +21,12 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     fun addConfigSource(source: ConfigSource) {
         manager.addSource(source)
     }
+
+    operator fun get(key: String) = manager.properties[key]?.get()
+
+    fun register(group : PropertyGroup){
+        for (line in group.keyList) {
+            ReloadableFactory.createReloadable(line.key, line.value, manager.properties, manager.flowOfChanges, manager.configScope)
+        }
+    }
 }
