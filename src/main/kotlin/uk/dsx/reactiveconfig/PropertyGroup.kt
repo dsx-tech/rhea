@@ -24,8 +24,6 @@ open class PropertyGroup() {
     private fun name(): String = outer() + groupName()
 
     infix fun <T : Any> String.of(type: PropertyTypeBase.PropertyType<T>) {
-        println("of worked!")
-        println(this)
         val enclose = classRef::class.java.enclosingClass?.kotlin?.objectInstance as? PropertyGroup
         keyList["$name.$this"] = type
         if (enclose != null) {
