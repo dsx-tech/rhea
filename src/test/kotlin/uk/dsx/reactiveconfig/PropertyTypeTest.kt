@@ -3,6 +3,7 @@ package uk.dsx.reactiveconfig
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 object PropertyTypeTest : Spek({
@@ -18,9 +19,33 @@ object PropertyTypeTest : Spek({
         }
     }
 
-//    describe("calling nullable()") {
-//        val nullableStringProperty by config.base.stringType.nullable()
-//    }
+    describe("calling nullable() with not null value in the channel") {
+        val nullableStringProperty by config.base.stringType.nullable()
+
+        source.pushChanges("nullableStringProperty", "hey")
+
+        while (true) {
+            if (nullableStringProperty.get() != "") break
+        }
+
+        it("value of property should have been changed to 'hey'") {
+            assertEquals("hey", nullableStringProperty.get())
+        }
+    }
+
+    describe("calling nullable() with null value in the channel") {
+        val nullableStringProperty1 by config.base.stringType.nullable()
+
+        source.pushChanges("nullableStringProperty1", null)
+
+        while (true) {
+            if (nullableStringProperty1.get() != "") break
+        }
+
+        it("value of property should have been changed to null") {
+            assertNull(nullableStringProperty1.get())
+        }
+    }
 
     describe("stringType") {
         val stringProperty by config.base.stringType
@@ -34,20 +59,20 @@ object PropertyTypeTest : Spek({
             assertEquals("something", stringProperty.get())
         }
     }
-
-    describe("intType") {
-        val intProperty by config.base.intType
-
-        source.pushChanges("intProperty", 1313)
-        while (true) {
-            if (intProperty.get() != 0) break
-        }
-
-        it("value of property should have been changed to 1313") {
-            assertEquals(1313, intProperty.get())
-        }
-    }
-
+//
+//    describe("intType") {
+//        val intProperty by config.base.intType
+//
+//        source.pushChanges("intProperty", 1313)
+//        while (true) {
+//            if (intProperty.get() != 0) break
+//        }
+//
+//        it("value of property should have been changed to 1313") {
+//            assertEquals(1313, intProperty.get())
+//        }
+//    }
+//
 //    describe("longType") {
 //        val longProperty by config.base.longType
 //

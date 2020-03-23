@@ -17,26 +17,30 @@ sealed class ParseResult<T> {
     class Failure<T> : ParseResult<T>()
 }
 
+fun <T> PropertyTypeBase.PropertyType<T>.nullable(): PropertyTypeBase.PropertyType<T?> {
+    return base.PropertyType(initial, { node: Node? ->
+        parse(node).let { result: ParseResult<T?> ->
+            when (result) {
+                is ParseResult.Success -> result
+                is ParseResult.Failure -> ParseResult.Success(null)
+            }
+        }
+    })
+}
+
 class PropertyTypeBase(
     val map: MutableMap<String, Reloadable<*>>,
     val flowOfChanges: Flow<RawProperty>,
     val scope: CoroutineScope
 ) {
-    inner class PropertyType<T>(var initial: T, var parse: (Node?) -> ParseResult<T?>) {
+    inner class PropertyType<T>(
+        var initial: T,
+        var parse: (Node?) -> ParseResult<T?>,
+        val base: PropertyTypeBase = this@PropertyTypeBase
+    ) {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
             return ReloadableFactory.createReloadable(property.name, this, map, flowOfChanges, scope)
         }
-    }
-
-    fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
-        return PropertyType(this.initial, { node: Node? ->
-            this.parse(node).let { result: ParseResult<T?> ->
-                when (result) {
-                    is ParseResult.Success -> result
-                    is ParseResult.Failure -> ParseResult.Success(null)
-                }
-            }
-        })
     }
 
     val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
