@@ -2,7 +2,6 @@ package uk.dsx.reactiveconfig
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KProperty
 
 sealed class Node
@@ -17,6 +16,7 @@ sealed class ParseResult<T> {
     class Failure<T> : ParseResult<T>()
 }
 
+// todo: fix reloadable creation with delegation
 fun <T> PropertyTypeBase.PropertyType<T>.nullable(): PropertyTypeBase.PropertyType<T?> {
     return base.PropertyType(initial, { node: Node? ->
         parse(node).let { result: ParseResult<T?> ->

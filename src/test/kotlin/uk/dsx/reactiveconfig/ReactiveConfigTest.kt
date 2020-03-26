@@ -7,7 +7,7 @@ import kotlin.test.assertNotNull
 
 object ReactiveConfigTest : Spek({
     val config = ReactiveConfig {
-        "property".of(base.stringType)
+        "property" of base.stringType
     }
     val source = ConfigMock()
     config.addConfigSource(source)

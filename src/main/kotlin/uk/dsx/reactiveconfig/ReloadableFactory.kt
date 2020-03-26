@@ -17,18 +17,21 @@ object ReloadableFactory {
         scope: CoroutineScope
     ): Reloadable<T> {
         return map[key] as Reloadable<T>? ?: Reloadable(type.initial,
-            flowOfChanges.filter { rawProperty: RawProperty ->
-                rawProperty.key == key
-            }.map { rawProperty: RawProperty ->
-                type.parse(rawProperty.value).let {
-                    when (it) {
-                        is ParseResult.Success -> it.value
-                        is ParseResult.Failure -> logger.error("Wrong type of property: $key")
+            flowOfChanges
+                .filter { rawProperty: RawProperty ->
+                    rawProperty.key == key
+                }
+                .map { rawProperty: RawProperty ->
+                    type.parse(rawProperty.value).let {
+                        when (it) {
+                            is ParseResult.Success -> it.value
+                            is ParseResult.Failure -> logger.error("Wrong type of property: $key")
+                        }
                     }
                 }
-            }.map {
-                it as T
-            }, scope
+                .map {
+                    it as T
+                }, scope
         ).also { map[key] = it }
     }
 }

@@ -10,11 +10,11 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
         apply(block)
     }
 
-    infix fun <T : Any> String.of(type: PropertyTypeBase.PropertyType<T>) {
+    infix fun <T> String.of(type: PropertyTypeBase.PropertyType<T>) {
         ReloadableFactory.createReloadable(this, type, manager.properties, manager.flowOfChanges, manager.configScope)
     }
 
-    fun <T : Any> reloadable(key: String, type: PropertyTypeBase.PropertyType<T>): Reloadable<T> {
+    fun <T> reloadable(key: String, type: PropertyTypeBase.PropertyType<T>): Reloadable<T> {
         return ReloadableFactory.createReloadable(key, type, manager.properties, manager.flowOfChanges, manager.configScope)
     }
 

@@ -2,6 +2,7 @@ package uk.dsx.reactiveconfig.configsources
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import uk.dsx.reactiveconfig.ObjectNode
@@ -17,6 +18,10 @@ object JsonConfigSourceTest : Spek({
     val config = ReactiveConfig {}
     val jsonSource =
         JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json")
+
+    val isSomethingOn = config.reloadable("isSomethingOn", config.base.booleanType)
+    val property = config.reloadable("property", config.base.stringType)
+
     config.addConfigSource(jsonSource)
 
     describe("resource check") {
@@ -26,9 +31,8 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly BooleanNode from json") {
-        val isSomethingOn by config.base.booleanType
         while (true) {
-            if (!isSomethingOn.get()) break
+            if (isSomethingOn.get()) break
         }
 
         it("should contain value 'true' sent from JsonConfigSource") {
@@ -37,7 +41,6 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly StringNode from json") {
-        val property by config.base.stringType
         while (true) {
             if (property.get() != "") break
         }
@@ -48,14 +51,6 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly from json complex ObjectNode with NumericNode inside") {
-        val config = ReactiveConfig {}
-        val jsonSource =
-            JsonConfigSource(
-                Paths.get("src" + File.separator + "test" + File.separator + "resources"),
-                "jsonSource.json"
-            )
-        config.addConfigSource(jsonSource)
-
         lateinit var server: ObjectNode
 
         config.manager.configScope.launch {
@@ -66,9 +61,10 @@ object JsonConfigSourceTest : Spek({
             }
         }
 
+        config.addConfigSource(jsonSource)
+
         it("server should contain 'port' with value=1234 sent from JsonConfigSource") {
             assertEquals("1234", (server.value["port"] as NumericNode).value)
-
         }
     }
 })
