@@ -19,7 +19,37 @@ object PropertyTypeTest : Spek({
         }
     }
 
-    // todo: test delegation
+    describe("declaration with 'by'") {
+        val delegatedProperty by config.base.stringType
+        source.pushChanges("delegatedProperty", "something")
+        while (true) {
+            if (delegatedProperty.get() != "") break
+        }
+
+        it("value of property should have been changed to 'something'") {
+            assertEquals("something", delegatedProperty.get())
+        }
+    }
+
+    describe("declaration with 'by'") {
+        val delegatedProperty1 by config.base.stringType
+        // todo: make this call unnecessary
+        delegatedProperty1.get()
+
+        source.pushChanges("delegatedProperty1", "something1")
+        while (true) {
+            if (delegatedProperty1.get() != "") break
+        }
+
+        source.pushChanges("delegatedProperty1", "something2")
+        while (true) {
+            if (delegatedProperty1.get() != "something1") break
+        }
+
+        it("value of property should have been changed to 'something2'") {
+            assertEquals("something2", delegatedProperty1.get())
+        }
+    }
 
     describe("calling nullable()") {
         val nullableStringProperty = config.reloadable("nullableStringProperty", config.base.stringType.nullable())
@@ -39,6 +69,25 @@ object PropertyTypeTest : Spek({
         }
     }
 
+    describe("accessing one property twice") {
+        val property1 = config.reloadable("property", config.base.stringType)
+        val property2 = config.reloadable("property", config.base.stringType)
+
+        source.pushChanges("property", "something")
+        while (true) {
+            if (property1.get() != "") break
+        }
+
+        it("the same reloadable should be in both: property1 and property2") {
+            assertEquals(property1, property2)
+        }
+        it("value of property1 should have been changed to 'something'") {
+            assertEquals("something", property1.get())
+        }
+        it("value of property2 should also have been changed to 'something'") {
+            assertEquals("something", property2.get())
+        }
+    }
 
     describe("stringType") {
         val stringProperty = config.reloadable("stringProperty", config.base.stringType)
@@ -67,7 +116,7 @@ object PropertyTypeTest : Spek({
         }
 
         it("value of property should have been changed to 1313") {
-            assertEquals(1313, intProperty.get())
+            assertEquals(1314, intProperty.get() + 1)
         }
     }
 

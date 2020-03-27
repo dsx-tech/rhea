@@ -16,7 +16,6 @@ sealed class ParseResult<T> {
     class Failure<T> : ParseResult<T>()
 }
 
-// todo: fix reloadable creation with delegation
 fun <T> PropertyTypeBase.PropertyType<T>.nullable(): PropertyTypeBase.PropertyType<T?> {
     return base.PropertyType(initial, { node: Node? ->
         parse(node).let { result: ParseResult<T?> ->
@@ -28,11 +27,13 @@ fun <T> PropertyTypeBase.PropertyType<T>.nullable(): PropertyTypeBase.PropertyTy
     })
 }
 
+// todo: fix reloadable creation with delegation
 class PropertyTypeBase(
     val map: MutableMap<String, Reloadable<*>>,
     val flowOfChanges: Flow<RawProperty>,
     val scope: CoroutineScope
 ) {
+
     inner class PropertyType<T>(
         var initial: T,
         var parse: (Node?) -> ParseResult<T?>,

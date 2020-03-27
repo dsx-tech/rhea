@@ -32,6 +32,8 @@ object ReloadableFactory {
                 .map {
                     it as T
                 }, scope
-        ).also { map[key] = it }
+        ).also {
+            map[key] = it
+        }
     }
 }
