@@ -6,9 +6,10 @@ import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertNotNull
 
+
 object hello : PropertyGroup(){
     val first = "first" of base.stringType
-    object hey : PropertyGroup(){
+    val hey = "hey" of object : PropertyGroup() {
         val third = "third" of base.stringType
         val fourth = "fourth" of base.stringType
     }
@@ -26,6 +27,6 @@ object PropertyGroupTest : Spek({
     )
     assertNotNull(config["second"])
     assertNotNull(config["hello.first"])
-    assertNotNull(config["hello.second.third"])
-    assertNotNull(config["hello.second.fourth"])
+    assertNotNull(config["hello.hey.third"])
+    assertNotNull(config["hello.hey.fourth"])
 })

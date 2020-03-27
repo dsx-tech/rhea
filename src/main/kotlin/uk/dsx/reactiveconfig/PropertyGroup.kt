@@ -2,11 +2,10 @@ package uk.dsx.reactiveconfig
 
 import java.util.concurrent.ConcurrentHashMap
 
-open class PropertyGroup() {
-    val classRef = this
+open class PropertyGroup {
     var keyList = ConcurrentHashMap<String, PropertyTypeBase.PropertyType<*>>()
     private val name = name()
-    var manager: ConfigManager = ConfigManager()
+    private var manager: ConfigManager = ConfigManager()
     var base: PropertyTypeBase = PropertyTypeBase(manager.properties, manager.flowOfChanges, manager.configScope)
 
     private fun outer(): String? {
@@ -19,15 +18,21 @@ open class PropertyGroup() {
         return classPath
     }
 
-    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$")
-        ?: throw IllegalArgumentException("cannot determine name of property group")
+    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$")?: "-"
+
     private fun name(): String = outer() + groupName()
 
     infix fun <T : Any> String.of(type: PropertyTypeBase.PropertyType<T>) {
-        val enclose = classRef::class.java.enclosingClass?.kotlin?.objectInstance as? PropertyGroup
         keyList["$name.$this"] = type
-        if (enclose != null) {
-            enclose.keyList["$name.$this"] = type
+    }
+
+    infix fun String.of(group: PropertyGroup) {
+        for (line in group.keyList) {
+            val parsed = line.key.split("-")
+            val key = parsed[0] + this + parsed[1]
+            if (!keyList.contains(key)){
+                keyList[key] = line.value
+            }
         }
     }
 }
