@@ -17,10 +17,12 @@ import java.io.*
 class JsonConfigSource : ConfigSource {
     private val file: File
     private lateinit var channel: SendChannel<RawProperty>
+    private lateinit var configScope: CoroutineScope
     private val map: HashMap<String, Node?> = HashMap()
 
     private val watchService: WatchService = FileSystems.getDefault().newWatchService()
     private lateinit var key: WatchKey
+    private val parser: Parser = Parser.default()
 
     constructor(directory: Path, fileName: String) {
         directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
@@ -34,20 +36,12 @@ class JsonConfigSource : ConfigSource {
 
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
         channel = channelOfChanges
-        val parser: Parser = Parser.default()
+        configScope = scope
 
-        scope.launch(newSingleThreadContext("watching thread")) {
+        configScope.launch(newSingleThreadContext("watching thread")) {
             try {
-                var inputStream = file.inputStream()
-                var parsed = parser.parse(inputStream) as JsonObject
-
-                for (obj in parsed.map) {
-                    toNode(obj.value).also {
-                        map[obj.key] = it
-                        channel.send(RawProperty(obj.key, it))
-                    }
-                }
-                inputStream.close()
+                var inputStream: InputStream
+                var parsed: JsonObject
 
                 while (true) {
                     inputStream = file.inputStream()
@@ -71,6 +65,28 @@ class JsonConfigSource : ConfigSource {
                     key.reset()
                     inputStream.close()
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    override fun pushChanges(key: String) {
+        configScope.launch {
+            try {
+                val inputStream = file.inputStream()
+                val parsed = parser.parse(inputStream) as JsonObject
+
+                for (obj in parsed.map) {
+                    if (obj.key == key) {
+                        toNode(obj.value).also {
+                            map[obj.key] = it
+                            channel.send(RawProperty(obj.key, it))
+                        }
+                    }
+                }
+
+                inputStream.close()
             } catch (e: Exception) {
                 e.printStackTrace()
             }

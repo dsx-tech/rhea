@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 object PropertyTypeTest : Spek({
     val config = ReactiveConfig {}
     val source = ConfigMock()
-    config.addConfigSource(source)
+    config.addConfigSource("ConfigMock", source)
 
     describe("declaration") {
         val server = config.reloadable("server", config.base.stringType)

@@ -10,7 +10,7 @@ object ReactiveConfigTest : Spek({
         "property" of base.stringType
     }
     val source = ConfigMock()
-    config.addConfigSource(source)
+    config.addConfigSource("ConfigMock", source)
 
     describe("ReactiveConfig creation") {
         it("should be not null") {
@@ -22,7 +22,7 @@ object ReactiveConfigTest : Spek({
         source.pushChanges("property", "something")
 
         it("reloadable from map should contain a new value of updated property with key=property") {
-            assertEquals("something", (config.manager.properties["property"] as Reloadable<String>).get())
+            assertEquals("something", (config.manager.mapOfProperties["property"] as Reloadable<String>).get())
         }
     }
 
@@ -34,7 +34,7 @@ object ReactiveConfigTest : Spek({
         }
 
         it("reloadable from map should contain a new value of updated property with key=server.port") {
-            assertEquals(1313, (config.manager.properties["server.port"] as Reloadable<Int>).get())
+            assertEquals(1313, (config.manager.mapOfProperties["server.port"] as Reloadable<Int>).get())
         }
 
         it("calling get() on Reloadable directly should return the same new value") {

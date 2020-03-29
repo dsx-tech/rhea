@@ -2,6 +2,7 @@ package uk.dsx.reactiveconfig
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import uk.dsx.reactiveconfig.interfaces.ConfigSource
 import kotlin.reflect.KProperty
 
 sealed class Node
@@ -29,7 +30,8 @@ fun <T> PropertyTypeBase.PropertyType<T>.nullable(): PropertyTypeBase.PropertyTy
 
 // todo: fix reloadable creation with delegation
 class PropertyTypeBase(
-    val map: MutableMap<String, Reloadable<*>>,
+    val mapOfProperties: MutableMap<String, Reloadable<*>>,
+    val mapOfSources: MutableMap<String, ConfigSource>,
     val flowOfChanges: Flow<RawProperty>,
     val scope: CoroutineScope
 ) {
@@ -40,7 +42,14 @@ class PropertyTypeBase(
         val base: PropertyTypeBase = this@PropertyTypeBase
     ) {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
-            return ReloadableFactory.createReloadable(property.name, this, map, flowOfChanges, scope)
+            return ReloadableFactory.createReloadable(
+                property.name,
+                this,
+                mapOfProperties,
+                mapOfSources,
+                flowOfChanges,
+                scope
+            )
         }
     }
 

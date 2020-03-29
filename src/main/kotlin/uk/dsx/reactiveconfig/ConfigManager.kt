@@ -12,7 +12,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 class ConfigManager {
     val configScope = CoroutineScope(EmptyCoroutineContext)
     private val channelOfChanges: BroadcastChannel<RawProperty> = BroadcastChannel(Channel.BUFFERED)
-    val properties: MutableMap<String, Reloadable<*>> = ConcurrentHashMap()
+    val mapOfProperties: MutableMap<String, Reloadable<*>> = ConcurrentHashMap()
+    val mapOfSources: MutableMap<String, ConfigSource> = ConcurrentHashMap()
     val flowOfChanges: Flow<RawProperty> = channelOfChanges.asFlow()
 
     fun addSource(source: ConfigSource) {

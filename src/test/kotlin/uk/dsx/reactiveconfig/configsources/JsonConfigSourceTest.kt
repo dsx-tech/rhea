@@ -18,11 +18,7 @@ object JsonConfigSourceTest : Spek({
     val config = ReactiveConfig {}
     val jsonSource =
         JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json")
-
-    val isSomethingOn = config.reloadable("isSomethingOn", config.base.booleanType)
-    val property = config.reloadable("property", config.base.stringType)
-
-    config.addConfigSource(jsonSource)
+    config.addConfigSource("jsonConfig", jsonSource)
 
     describe("resource check") {
         it("should be initialised") {
@@ -31,6 +27,7 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly BooleanNode from json") {
+        val isSomethingOn = config.reloadable("isSomethingOn", config.base.booleanType)
         while (true) {
             if (isSomethingOn.get()) break
         }
@@ -41,6 +38,8 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly StringNode from json") {
+        val property = config.reloadable("property", config.base.stringType)
+
         while (true) {
             if (property.get() != "") break
         }
@@ -61,8 +60,7 @@ object JsonConfigSourceTest : Spek({
             }
         }
 
-        config.addConfigSource(jsonSource)
-
+        jsonSource.pushChanges("server")
         it("server should contain 'port' with value=1234 sent from JsonConfigSource") {
             assertEquals("1234", (server.value["port"] as NumericNode).value)
         }

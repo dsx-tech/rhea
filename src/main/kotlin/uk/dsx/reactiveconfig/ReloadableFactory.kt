@@ -5,18 +5,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
+import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
-private val logger = KotlinLogging.logger {}
 
 object ReloadableFactory {
+    private val logger = KotlinLogging.logger {}
+
     fun <T> createReloadable(
         key: String,
         type: PropertyTypeBase.PropertyType<T>,
-        map: MutableMap<String, Reloadable<*>>,
+        mapOfProperties: MutableMap<String, Reloadable<*>>,
+        mapOfSources: MutableMap<String, ConfigSource>,
         flowOfChanges: Flow<RawProperty>,
         scope: CoroutineScope
     ): Reloadable<T> {
-        return map[key] as Reloadable<T>? ?: Reloadable(type.initial,
+        return mapOfProperties[key] as Reloadable<T>? ?: Reloadable(type.initial,
             flowOfChanges
                 .filter { rawProperty: RawProperty ->
                     rawProperty.key == key
@@ -31,9 +34,13 @@ object ReloadableFactory {
                 }
                 .map {
                     it as T
-                }, scope
+                },
+            scope
         ).also {
-            map[key] = it
+            for (source in mapOfSources.values) {
+                source.pushChanges(key)
+            }
+            mapOfProperties[key] = it
         }
     }
 }

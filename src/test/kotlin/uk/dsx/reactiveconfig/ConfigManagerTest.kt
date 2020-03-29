@@ -20,8 +20,6 @@ object ConfigManagerTest : Spek({
         val source = ConfigMock()
         manager.addSource(source)
 
-        source.pushChanges("port", "1234")
-
         manager.configScope.launch {
             manager.flowOfChanges.collect {
                 it("flow should contain RawProperty with key=port from subscribed source") {
@@ -29,5 +27,6 @@ object ConfigManagerTest : Spek({
                 }
             }
         }
+        source.pushChanges("port", "1234")
     }
 })

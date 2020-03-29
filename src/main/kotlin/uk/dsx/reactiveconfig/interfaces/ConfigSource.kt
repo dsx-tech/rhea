@@ -6,4 +6,6 @@ import uk.dsx.reactiveconfig.RawProperty
 
 interface ConfigSource {
     suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope)
+
+    fun pushChanges(key: String)
 }
