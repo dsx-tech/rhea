@@ -7,7 +7,7 @@ import kotlin.test.assertNotNull
 
 object ReactiveConfigTest : Spek({
     val config = ReactiveConfig {
-        "property" of base.stringType
+        "property" of stringType
     }
     val source = ConfigMock()
     config.addConfigSource("ConfigMock", source)
@@ -27,7 +27,7 @@ object ReactiveConfigTest : Spek({
     }
 
     describe("reloadable creation with function reloadable() where name can be changed") {
-        val reloadable = config.reloadable("server.port", config.base.intType)
+        val reloadable = config.reloadable("server.port", intType)
         source.pushChanges("server.port", 1313)
         while (true) {
             if (reloadable.get() != 0) break

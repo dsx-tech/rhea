@@ -4,14 +4,12 @@ import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
 class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     var manager: ConfigManager = ConfigManager()
-    var base: PropertyTypeBase =
-        PropertyTypeBase(manager.mapOfProperties, manager.mapOfSources, manager.flowOfChanges, manager.configScope)
 
     init {
         apply(block)
     }
 
-    infix fun <T> String.of(type: PropertyTypeBase.PropertyType<T>) {
+    infix fun <T> String.of(type: PropertyType<T>) {
         ReloadableFactory.createReloadable(
             this,
             type,
@@ -22,7 +20,7 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
         )
     }
 
-    fun <T> reloadable(key: String, type: PropertyTypeBase.PropertyType<T>): Reloadable<T> {
+    fun <T> reloadable(key: String, type: PropertyType<T>): Reloadable<T> {
         return ReloadableFactory.createReloadable(
             key,
             type,

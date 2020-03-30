@@ -13,7 +13,7 @@ object ReloadableFactory {
 
     fun <T> createReloadable(
         key: String,
-        type: PropertyTypeBase.PropertyType<T>,
+        type: PropertyType<T>,
         mapOfProperties: MutableMap<String, Reloadable<*>>,
         mapOfSources: MutableMap<String, ConfigSource>,
         flowOfChanges: Flow<RawProperty>,

@@ -1,10 +1,5 @@
 package uk.dsx.reactiveconfig
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import uk.dsx.reactiveconfig.interfaces.ConfigSource
-import kotlin.reflect.KProperty
-
 sealed class Node
 data class ObjectNode(val value: MutableMap<String, Node?>) : Node()
 data class NumericNode(val value: String) : Node()
@@ -17,8 +12,8 @@ sealed class ParseResult<T> {
     class Failure<T> : ParseResult<T>()
 }
 
-fun <T> PropertyTypeBase.PropertyType<T>.nullable(): PropertyTypeBase.PropertyType<T?> {
-    return base.PropertyType(initial, { node: Node? ->
+fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
+    return PropertyType(initial, { node: Node? ->
         parse(node).let { result: ParseResult<T?> ->
             when (result) {
                 is ParseResult.Success -> result
@@ -28,70 +23,46 @@ fun <T> PropertyTypeBase.PropertyType<T>.nullable(): PropertyTypeBase.PropertyTy
     })
 }
 
-// todo: fix reloadable creation with delegation
-class PropertyTypeBase(
-    val mapOfProperties: MutableMap<String, Reloadable<*>>,
-    val mapOfSources: MutableMap<String, ConfigSource>,
-    val flowOfChanges: Flow<RawProperty>,
-    val scope: CoroutineScope
-) {
+class PropertyType<T>(val initial: T, val parse: (Node?) -> ParseResult<T?>)
 
-    inner class PropertyType<T>(
-        var initial: T,
-        var parse: (Node?) -> ParseResult<T?>,
-        val base: PropertyTypeBase = this@PropertyTypeBase
-    ) {
-        operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
-            return ReloadableFactory.createReloadable(
-                property.name,
-                this,
-                mapOfProperties,
-                mapOfSources,
-                flowOfChanges,
-                scope
-            )
-        }
+val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
+    when (node) {
+        is StringNode -> ParseResult.Success(node.value)
+        else -> ParseResult.Failure()
     }
+})
 
-    val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
-        when (node) {
-            is StringNode -> ParseResult.Success(node.value)
-            else -> ParseResult.Failure()
-        }
-    })
+val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
+    when (node) {
+        is NumericNode -> ParseResult.Success(node.value.toInt())
+        else -> ParseResult.Failure()
+    }
+})
 
-    val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
-        when (node) {
-            is NumericNode -> ParseResult.Success(node.value.toInt())
-            else -> ParseResult.Failure()
-        }
-    })
+val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
+    when (node) {
+        is NumericNode -> ParseResult.Success(node.value.toLong())
+        else -> ParseResult.Failure()
+    }
+})
 
-    val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
-        when (node) {
-            is NumericNode -> ParseResult.Success(node.value.toLong())
-            else -> ParseResult.Failure()
-        }
-    })
+val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
+    when (node) {
+        is NumericNode -> ParseResult.Success(node.value.toFloat())
+        else -> ParseResult.Failure()
+    }
+})
 
-    val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
-        when (node) {
-            is NumericNode -> ParseResult.Success(node.value.toFloat())
-            else -> ParseResult.Failure()
-        }
-    })
+val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
+    when (node) {
+        is NumericNode -> ParseResult.Success(node.value.toDouble())
+        else -> ParseResult.Failure()
+    }
+})
 
-    val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
-        when (node) {
-            is NumericNode -> ParseResult.Success(node.value.toDouble())
-            else -> ParseResult.Failure()
-        }
-    })
-
-    val booleanType: PropertyType<Boolean> = PropertyType(false, { node: Node? ->
-        when (node) {
-            is BooleanNode -> ParseResult.Success(node.value)
-            else -> ParseResult.Failure()
-        }
-    })
-}
+val booleanType: PropertyType<Boolean> = PropertyType(false, { node: Node? ->
+    when (node) {
+        is BooleanNode -> ParseResult.Success(node.value)
+        else -> ParseResult.Failure()
+    }
+})

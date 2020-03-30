@@ -2,12 +2,9 @@ package uk.dsx.reactiveconfig.configsources
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import uk.dsx.reactiveconfig.ObjectNode
-import uk.dsx.reactiveconfig.NumericNode
-import uk.dsx.reactiveconfig.ReactiveConfig
+import uk.dsx.reactiveconfig.*
 import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertEquals
@@ -27,7 +24,7 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly BooleanNode from json") {
-        val isSomethingOn = config.reloadable("isSomethingOn", config.base.booleanType)
+        val isSomethingOn = config.reloadable("isSomethingOn", booleanType)
         while (true) {
             if (isSomethingOn.get()) break
         }
@@ -38,7 +35,7 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly StringNode from json") {
-        val property = config.reloadable("property", config.base.stringType)
+        val property = config.reloadable("property", stringType)
 
         while (true) {
             if (property.get() != "") break

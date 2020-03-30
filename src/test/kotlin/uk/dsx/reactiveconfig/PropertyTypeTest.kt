@@ -12,47 +12,15 @@ object PropertyTypeTest : Spek({
     config.addConfigSource("ConfigMock", source)
 
     describe("declaration") {
-        val server = config.reloadable("server", config.base.stringType)
+        val server = config.reloadable("server", stringType)
 
         it("should contain initial value") {
             assertEquals("", server.get())
         }
     }
 
-    describe("declaration with 'by'") {
-        val delegatedProperty by config.base.stringType
-        source.pushChanges("delegatedProperty", "something")
-        while (true) {
-            if (delegatedProperty.get() != "") break
-        }
-
-        it("value of property should have been changed to 'something'") {
-            assertEquals("something", delegatedProperty.get())
-        }
-    }
-
-    describe("declaration with 'by'") {
-        val delegatedProperty1 by config.base.stringType
-        // todo: make this call unnecessary
-        delegatedProperty1.get()
-
-        source.pushChanges("delegatedProperty1", "something1")
-        while (true) {
-            if (delegatedProperty1.get() != "") break
-        }
-
-        source.pushChanges("delegatedProperty1", "something2")
-        while (true) {
-            if (delegatedProperty1.get() != "something1") break
-        }
-
-        it("value of property should have been changed to 'something2'") {
-            assertEquals("something2", delegatedProperty1.get())
-        }
-    }
-
     describe("calling nullable()") {
-        val nullableStringProperty = config.reloadable("nullableStringProperty", config.base.stringType.nullable())
+        val nullableStringProperty = config.reloadable("nullableStringProperty", stringType.nullable())
 
         source.pushChanges("nullableStringProperty", "notNull")
         while (true) {
@@ -70,8 +38,8 @@ object PropertyTypeTest : Spek({
     }
 
     describe("accessing one property twice") {
-        val property1 = config.reloadable("property", config.base.stringType)
-        val property2 = config.reloadable("property", config.base.stringType)
+        val property1 = config.reloadable("property", stringType)
+        val property2 = config.reloadable("property", stringType)
 
         source.pushChanges("property", "something")
         while (true) {
@@ -90,7 +58,7 @@ object PropertyTypeTest : Spek({
     }
 
     describe("stringType") {
-        val stringProperty = config.reloadable("stringProperty", config.base.stringType)
+        val stringProperty = config.reloadable("stringProperty", stringType)
 
         source.pushChanges("stringProperty", "something1")
         while (true) {
@@ -108,7 +76,7 @@ object PropertyTypeTest : Spek({
     }
 
     describe("intType") {
-        val intProperty = config.reloadable("intProperty", config.base.intType)
+        val intProperty = config.reloadable("intProperty", intType)
 
         source.pushChanges("intProperty", 1313)
         while (true) {
@@ -121,7 +89,7 @@ object PropertyTypeTest : Spek({
     }
 
     describe("longType") {
-        val longProperty = config.reloadable("longProperty", config.base.longType)
+        val longProperty = config.reloadable("longProperty", longType)
 
         source.pushChanges("longProperty", 1212L)
         while (true) {
@@ -134,7 +102,7 @@ object PropertyTypeTest : Spek({
     }
 
     describe("floatType") {
-        val floatProperty = config.reloadable("floatProperty", config.base.floatType)
+        val floatProperty = config.reloadable("floatProperty", floatType)
 
         source.pushChanges("floatProperty", 1414F)
         while (true) {
@@ -147,7 +115,7 @@ object PropertyTypeTest : Spek({
     }
 
     describe("doubleType") {
-        val doubleProperty = config.reloadable("doubleProperty", config.base.doubleType)
+        val doubleProperty = config.reloadable("doubleProperty", doubleType)
 
         source.pushChanges("doubleProperty", 1515.0)
         while (true) {
@@ -160,7 +128,7 @@ object PropertyTypeTest : Spek({
     }
 
     describe("booleanType") {
-        val booleanProperty = config.reloadable("booleanProperty", config.base.booleanType)
+        val booleanProperty = config.reloadable("booleanProperty", booleanType)
 
         source.pushChanges("booleanProperty", true)
         while (true) {
