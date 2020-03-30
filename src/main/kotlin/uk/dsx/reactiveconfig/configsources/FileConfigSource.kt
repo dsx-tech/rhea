@@ -49,7 +49,7 @@ class FileConfigSource(private val directory: Path, private val fileName: String
         }
     }
 
-    override fun pushChanges(key: String) {
+    override fun pushValue(key: String) {
         TODO("Not yet implemented")
     }
 

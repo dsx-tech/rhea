@@ -14,7 +14,7 @@ class ConfigMock : ConfigSource {
         this.scope = scope
     }
 
-    override fun pushChanges(key: String) {}
+    override fun pushValue(key: String) {}
 
     fun pushChanges(key: String, value: Any?) {
         scope.launch {

@@ -38,7 +38,7 @@ object ReloadableFactory {
             scope
         ).also {
             for (source in mapOfSources.values) {
-                source.pushChanges(key)
+                source.pushValue(key)
             }
             mapOfProperties[key] = it
         }

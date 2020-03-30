@@ -71,7 +71,7 @@ class JsonConfigSource : ConfigSource {
         }
     }
 
-    override fun pushChanges(key: String) {
+    override fun pushValue(key: String) {
         configScope.launch {
             try {
                 val inputStream = file.inputStream()

@@ -60,7 +60,7 @@ object JsonConfigSourceTest : Spek({
             }
         }
 
-        jsonSource.pushChanges("server")
+        jsonSource.pushValue("server")
         it("server should contain 'port' with value=1234 sent from JsonConfigSource") {
             assertEquals("1234", (server.value["port"] as NumericNode).value)
         }
