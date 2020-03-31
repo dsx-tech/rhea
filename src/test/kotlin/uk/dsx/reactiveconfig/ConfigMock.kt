@@ -1,7 +1,6 @@
 package uk.dsx.reactiveconfig
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
@@ -14,6 +13,8 @@ class ConfigMock : ConfigSource {
         channel = channelOfChanges
         this.scope = scope
     }
+
+    override fun pushValue(key: String) {}
 
     fun pushChanges(key: String, value: Any?) {
         scope.launch {

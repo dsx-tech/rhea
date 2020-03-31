@@ -3,10 +3,8 @@ package uk.dsx.reactiveconfig
 import java.util.concurrent.ConcurrentHashMap
 
 open class PropertyGroup {
-    var keyList = ConcurrentHashMap<String, PropertyTypeBase.PropertyType<*>>()
+    var keyList = ConcurrentHashMap<String, PropertyType<*>>()
     private val name = name()
-    private var manager: ConfigManager = ConfigManager()
-    var base: PropertyTypeBase = PropertyTypeBase(manager.properties, manager.flowOfChanges, manager.configScope)
 
     private fun outer(): String? {
         var classPointer = this::class.java.enclosingClass?.kotlin?.objectInstance as? PropertyGroup
@@ -22,7 +20,7 @@ open class PropertyGroup {
 
     private fun name(): String = outer() + groupName()
 
-    infix fun <T : Any> String.of(type: PropertyTypeBase.PropertyType<T>) {
+    infix fun <T : Any> String.of(type: PropertyType<T>) {
         keyList["$name.$this"] = type
     }
 
