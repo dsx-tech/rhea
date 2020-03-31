@@ -4,21 +4,35 @@ import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
 class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     var manager: ConfigManager = ConfigManager()
-    var base: PropertyTypeBase = PropertyTypeBase(manager.properties, manager.flowOfChanges, manager.configScope)
 
     init {
         apply(block)
     }
 
-    infix fun <T : Any> String.of(type: PropertyTypeBase.PropertyType<T>) {
-        ReloadableFactory.createReloadable(this, type, manager.properties, manager.flowOfChanges, manager.configScope)
+    infix fun <T> String.of(type: PropertyType<T>) {
+        ReloadableFactory.createReloadable(
+            this,
+            type,
+            manager.mapOfProperties,
+            manager.mapOfSources,
+            manager.flowOfChanges,
+            manager.configScope
+        )
     }
 
-    fun <T : Any> reloadable(key: String, type: PropertyTypeBase.PropertyType<T>): Reloadable<T> {
-        return ReloadableFactory.createReloadable(key, type, manager.properties, manager.flowOfChanges, manager.configScope)
+    fun <T> reloadable(key: String, type: PropertyType<T>): Reloadable<T> {
+        return ReloadableFactory.createReloadable(
+            key,
+            type,
+            manager.mapOfProperties,
+            manager.mapOfSources,
+            manager.flowOfChanges,
+            manager.configScope
+        )
     }
 
-    fun addConfigSource(source: ConfigSource) {
+    fun addConfigSource(name: String, source: ConfigSource) {
+        manager.mapOfSources[name] = source
         manager.addSource(source)
     }
 }

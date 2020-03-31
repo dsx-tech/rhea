@@ -49,6 +49,10 @@ class FileConfigSource(private val directory: Path, private val fileName: String
         }
     }
 
+    override fun pushValue(key: String) {
+        TODO("Not yet implemented")
+    }
+
     private fun giveMeListOfChanges(previous: List<String>?, updated: List<String>): List<String> {
         val changes: LinkedList<String> = LinkedList()
         if (previous == null) {

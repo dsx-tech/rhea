@@ -4,9 +4,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import uk.dsx.reactiveconfig.ObjectNode
-import uk.dsx.reactiveconfig.NumericNode
-import uk.dsx.reactiveconfig.ReactiveConfig
+import uk.dsx.reactiveconfig.*
 import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertEquals
@@ -17,7 +15,7 @@ object JsonConfigSourceTest : Spek({
     val config = ReactiveConfig {}
     val jsonSource =
         JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json")
-    config.addConfigSource(jsonSource)
+    config.addConfigSource("jsonConfig", jsonSource)
 
     describe("resource check") {
         it("should be initialised") {
@@ -26,9 +24,9 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly BooleanNode from json") {
-        val isSomethingOn by config.base.booleanType
+        val isSomethingOn = config.reloadable("isSomethingOn", booleanType)
         while (true) {
-            if (!isSomethingOn.get()) break
+            if (isSomethingOn.get()) break
         }
 
         it("should contain value 'true' sent from JsonConfigSource") {
@@ -37,7 +35,8 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly StringNode from json") {
-        val property by config.base.stringType
+        val property = config.reloadable("property", stringType)
+
         while (true) {
             if (property.get() != "") break
         }
@@ -48,14 +47,6 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly from json complex ObjectNode with NumericNode inside") {
-        val config = ReactiveConfig {}
-        val jsonSource =
-            JsonConfigSource(
-                Paths.get("src" + File.separator + "test" + File.separator + "resources"),
-                "jsonSource.json"
-            )
-        config.addConfigSource(jsonSource)
-
         lateinit var server: ObjectNode
 
         config.manager.configScope.launch {
@@ -66,9 +57,9 @@ object JsonConfigSourceTest : Spek({
             }
         }
 
+        jsonSource.pushValue("server")
         it("server should contain 'port' with value=1234 sent from JsonConfigSource") {
             assertEquals("1234", (server.value["port"] as NumericNode).value)
-
         }
     }
 })
