@@ -4,6 +4,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 object ReactiveConfigTest : Spek({
     val config = ReactiveConfig {
@@ -18,23 +19,36 @@ object ReactiveConfigTest : Spek({
         }
     }
 
+    describe("typed accessing mapOfProperties with 2 variants") {
+        val prop = config.reloadable("prop", intType)
+        source.pushChanges("prop", 3)
+
+        it("sum of prop's value of reloadable from map and 7 should be 10") {
+            assertEquals(10, config.getReloadable<Int>("prop")!!.get() + 7)
+        }
+
+        val prop1 = config.reloadable("prop1", booleanType)
+        source.pushChanges("prop1", true)
+
+        it("value of reloadable with key='prop1' from map should be 'true'") {
+            assertTrue(config.getReloadable("prop1", booleanType)!!.get())
+        }
+    }
+
     describe("reloadable creation with infix function 'of'") {
         source.pushChanges("property", "something")
 
         it("reloadable from map should contain a new value of updated property with key=property") {
-            assertEquals("something", (config.manager.mapOfProperties["property"] as Reloadable<String>).get())
+            assertEquals("something", (config.getReloadable<String>("property")!!.get()))
         }
     }
 
     describe("reloadable creation with function reloadable() where name can be changed") {
         val reloadable = config.reloadable("server.port", intType)
         source.pushChanges("server.port", 1313)
-        while (true) {
-            if (reloadable.get() != 0) break
-        }
 
         it("reloadable from map should contain a new value of updated property with key=server.port") {
-            assertEquals(1313, (config.manager.mapOfProperties["server.port"] as Reloadable<Int>).get())
+            assertEquals(1313, (reloadable.get()))
         }
 
         it("calling get() on Reloadable directly should return the same new value") {

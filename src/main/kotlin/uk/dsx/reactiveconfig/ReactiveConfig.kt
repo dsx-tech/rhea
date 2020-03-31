@@ -3,7 +3,7 @@ package uk.dsx.reactiveconfig
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
 class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
-    var manager: ConfigManager = ConfigManager()
+    private var manager: ConfigManager = ConfigManager()
 
     init {
         apply(block)
@@ -34,5 +34,13 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     fun addConfigSource(name: String, source: ConfigSource) {
         manager.mapOfSources[name] = source
         manager.addSource(source)
+    }
+
+    fun <T> getReloadable(key: String): Reloadable<T>? {
+        return manager.mapOfProperties[key] as Reloadable<T>
+    }
+
+    fun <T> getReloadable(key: String, type: PropertyType<T>): Reloadable<T>? {
+        return manager.mapOfProperties[key] as Reloadable<T>
     }
 }

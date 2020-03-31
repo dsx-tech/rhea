@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
-
 object ReloadableFactory {
     private val logger = KotlinLogging.logger {}
 
