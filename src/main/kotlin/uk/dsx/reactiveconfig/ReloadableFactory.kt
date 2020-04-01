@@ -4,12 +4,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
 object ReloadableFactory {
-    private val logger = KotlinLogging.logger {}
-
     fun <T> createReloadable(
         key: String,
         type: PropertyType<T>,

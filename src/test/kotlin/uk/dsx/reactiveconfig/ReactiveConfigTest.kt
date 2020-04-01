@@ -4,6 +4,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 object ReactiveConfigTest : Spek({
@@ -19,12 +20,20 @@ object ReactiveConfigTest : Spek({
         }
     }
 
-    describe("typed accessing mapOfProperties with 2 variants") {
+    describe("typed access to mapOfProperties") {
         val prop = config.reloadable("prop", intType)
         source.pushChanges("prop", 3)
 
         it("sum of prop's value of reloadable from map and 7 should be 10") {
             assertEquals(10, config.getReloadable<Int>("prop")!!.get() + 7)
+        }
+
+        it ("null should be returned because of a wrong type specified") {
+            assertNull(config.getReloadable<String>("prop"))
+        }
+
+        it ("null should be returned because property with key='propp' doesn't exist") {
+            assertNull(config.getReloadable<Int>("propp"))
         }
 
         val prop1 = config.reloadable("prop1", booleanType)

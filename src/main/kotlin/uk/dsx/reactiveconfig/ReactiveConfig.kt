@@ -1,9 +1,13 @@
 package uk.dsx.reactiveconfig
 
+import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
+
+val logger = KotlinLogging.logger {}
 
 class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     private var manager: ConfigManager = ConfigManager()
+    val properties = manager.mapOfProperties
 
     init {
         apply(block)
@@ -13,7 +17,7 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
         ReloadableFactory.createReloadable(
             this,
             type,
-            manager.mapOfProperties,
+            properties,
             manager.mapOfSources,
             manager.flowOfChanges,
             manager.configScope
@@ -24,7 +28,7 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
         return ReloadableFactory.createReloadable(
             key,
             type,
-            manager.mapOfProperties,
+            properties,
             manager.mapOfSources,
             manager.flowOfChanges,
             manager.configScope
@@ -36,11 +40,23 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
         manager.addSource(source)
     }
 
-    fun <T> getReloadable(key: String): Reloadable<T>? {
-        return manager.mapOfProperties[key] as Reloadable<T>
+    inline fun <reified T> getReloadable(key: String): Reloadable<T>? {
+        if (properties.containsKey(key)) {
+            with(properties[key]) {
+                return if (this!!.get() is T) {
+                    this as Reloadable<T>
+                } else {
+                    logger.error("You specified the wrong type of reloadable with key='$key' in method getReloadable: its value is not ${T::class.simpleName}")
+                    null
+                }
+            }
+        } else {
+            logger.error("Reloadable with key='$key' doesn't exist")
+            return null
+        }
     }
 
-    fun <T> getReloadable(key: String, type: PropertyType<T>): Reloadable<T>? {
-        return manager.mapOfProperties[key] as Reloadable<T>
+    inline fun <reified T> getReloadable(key: String, type: PropertyType<T>): Reloadable<T>? {
+        return getReloadable(key)
     }
 }
