@@ -3,11 +3,11 @@ package uk.dsx.reactiveconfig
 import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
-val logger = KotlinLogging.logger {}
-
 class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     private var manager: ConfigManager = ConfigManager()
     val properties = manager.mapOfProperties
+
+    val logger = KotlinLogging.logger {}
 
     init {
         apply(block)
