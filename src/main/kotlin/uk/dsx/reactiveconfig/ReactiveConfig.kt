@@ -1,6 +1,7 @@
 package uk.dsx.reactiveconfig
 
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import java.util.*
 
 class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     var manager: ConfigManager = ConfigManager()
