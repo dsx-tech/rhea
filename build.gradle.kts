@@ -16,6 +16,7 @@ dependencies {
     val spekVersion = "2.0.8"
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.71")
     implementation(kotlin("stdlib-jdk8"))
     implementation ("com.beust:klaxon:5.0.1")
 
