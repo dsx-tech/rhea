@@ -1,7 +1,6 @@
 package uk.dsx.reactiveconfig
 
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
-import java.util.*
 
 class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
     var manager: ConfigManager = ConfigManager()
@@ -37,11 +36,18 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
         manager.addSource(source)
     }
 
-    operator fun get(key: String) = manager.mapOfProperties[key]?.get()
-
     fun register(group : PropertyGroup){
         for (line in group.keyList) {
-            ReloadableFactory.createReloadable(line.key, line.value, manager.mapOfProperties, manager.mapOfSources, manager.flowOfChanges, manager.configScope)
+            ReloadableFactory.createReloadable(
+                line.key,
+                line.value,
+                manager.mapOfProperties,
+                manager.mapOfSources,
+                manager.flowOfChanges,
+                manager.configScope
+            )
         }
     }
+
+    operator fun get(key: String) = manager.mapOfProperties[key]?.get()
 }

@@ -8,7 +8,7 @@ open class PropertyGroup(block: PropertyGroup.() -> Unit) {
     var toAdd : String = ""
 
     init {
-        toAdd += javaClass.kotlin.simpleName?.substringBefore("$")?:
+        toAdd += javaClass.kotlin.simpleName?.substringBefore("$") ?:
                 throw IllegalArgumentException("cannot determine name of property group")
         apply(block)
     }
