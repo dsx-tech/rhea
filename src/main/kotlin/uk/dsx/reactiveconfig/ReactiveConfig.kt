@@ -3,25 +3,45 @@ package uk.dsx.reactiveconfig
 import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 
-class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
-    private var manager: ConfigManager = ConfigManager()
-    val properties = manager.mapOfProperties
-
+class ReactiveConfig private constructor(
+    private val manager: ConfigManager,
+    val properties: MutableMap<String, Reloadable<*>>
+) {
     val logger = KotlinLogging.logger {}
 
-    init {
-        apply(block)
-    }
+    class Builder() {
+        private val manager: ConfigManager = ConfigManager()
+        private val propertyCreationFunctions: MutableList<() -> Unit> = mutableListOf()
 
-    infix fun <T> String.of(type: PropertyType<T>) {
-        ReloadableFactory.createReloadable(
-            this,
-            type,
-            properties,
-            manager.mapOfSources,
-            manager.flowOfChanges,
-            manager.configScope
-        )
+        fun <T> addProperty(key: String, type: PropertyType<T>): Builder {
+            return apply {
+                propertyCreationFunctions.add {
+                    ReloadableFactory.createReloadable(
+                        key,
+                        type,
+                        manager.mapOfProperties,
+                        manager.mapOfSources,
+                        manager.flowOfChanges,
+                        manager.configScope
+                    )
+                }
+            }
+        }
+
+        fun addSource(name: String, source: ConfigSource): Builder {
+            return apply {
+                manager.mapOfSources[name] = source
+                manager.addSource(source)
+            }
+        }
+
+        fun build(): ReactiveConfig {
+            for (creation in propertyCreationFunctions) {
+                creation()
+            }
+
+            return ReactiveConfig(manager, manager.mapOfProperties)
+        }
     }
 
     fun <T> reloadable(key: String, type: PropertyType<T>): Reloadable<T> {
@@ -33,11 +53,6 @@ class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
             manager.flowOfChanges,
             manager.configScope
         )
-    }
-
-    fun addConfigSource(name: String, source: ConfigSource) {
-        manager.mapOfSources[name] = source
-        manager.addSource(source)
     }
 
     inline fun <reified T> getReloadable(key: String): Reloadable<T>? {

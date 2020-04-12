@@ -16,7 +16,8 @@ object ReloadableTest : Spek({
                 emit(i)
             }
         },
-        CoroutineScope(EmptyCoroutineContext)
+        CoroutineScope(EmptyCoroutineContext),
+        {}
     )
 
     val reloadable2: Reloadable<Int> = Reloadable(
@@ -26,7 +27,8 @@ object ReloadableTest : Spek({
                 emit(i)
             }
         },
-        CoroutineScope(EmptyCoroutineContext)
+        CoroutineScope(EmptyCoroutineContext),
+        {}
     )
 
     describe("calling onChange()") {

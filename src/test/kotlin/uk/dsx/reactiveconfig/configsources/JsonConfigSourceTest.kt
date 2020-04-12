@@ -10,10 +10,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 object JsonConfigSourceTest : Spek({
-    val config = ReactiveConfig {}
     val jsonSource =
         JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json")
-    config.addConfigSource("jsonConfig", jsonSource)
+
+    val config = ReactiveConfig.Builder()
+        .addSource("jsonConfig", jsonSource)
+        .build()
 
     describe("resource check") {
         it("should be initialised") {
@@ -23,9 +25,6 @@ object JsonConfigSourceTest : Spek({
 
     describe("checks reading properly BooleanNode from json") {
         val isSomethingOn = config.reloadable("isSomethingOn", booleanType)
-        while (true) {
-            if (isSomethingOn.get()) break
-        }
 
         it("should contain value 'true' sent from JsonConfigSource") {
             assertTrue(isSomethingOn.get())
@@ -34,10 +33,6 @@ object JsonConfigSourceTest : Spek({
 
     describe("checks reading properly StringNode from json") {
         val property = config.reloadable("property", stringType)
-
-        while (true) {
-            if (property.get() != "") break
-        }
 
         it("should contain value 'someInfo' sent from JsonConfigSource") {
             assertEquals("someInfo", property.get())

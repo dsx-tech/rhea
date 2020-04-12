@@ -37,11 +37,13 @@ object ReloadableFactory {
                         .map {
                             it as T
                         },
-                    scope
-                ).also {
-                    for (source in mapOfSources.values) {
-                        source.pushValue(key)
+                    scope,
+                    {
+                        for (source in mapOfSources.values) {
+                            source.pushValue(key)
+                        }
                     }
+                ).also {
                     mapOfProperties[key] = it
                 }
             } else {
