@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import java.util.concurrent.atomic.AtomicBoolean
 
 private val logger = KotlinLogging.logger {}
 
@@ -13,6 +14,7 @@ object ReloadableFactory {
 
     fun <T> createReloadable(
         key: String,
+        isValueSet: AtomicBoolean,
         type: PropertyType<T>,
         mapOfProperties: MutableMap<String, Reloadable<*>>,
         mapOfSources: MutableMap<String, ConfigSource>,
@@ -21,7 +23,8 @@ object ReloadableFactory {
     ): Reloadable<T> {
         return mapOfProperties[key] as Reloadable<T>? ?: synchronized(this) {
             if (!mapOfProperties.containsKey(key)) {
-                Reloadable(type.initial,
+                Reloadable(key,
+                    type.initial,
                     flowOfChanges
                         .filter { rawProperty: RawProperty ->
                             rawProperty.key == key
@@ -37,12 +40,12 @@ object ReloadableFactory {
                         .map {
                             it as T
                         },
+                    type,
+                    mapOfProperties,
+                    mapOfSources,
+                    flowOfChanges,
                     scope,
-                    {
-                        for (source in mapOfSources.values) {
-                            source.pushValue(key)
-                        }
-                    }
+                    isValueSet
                 ).also {
                     mapOfProperties[key] = it
                 }

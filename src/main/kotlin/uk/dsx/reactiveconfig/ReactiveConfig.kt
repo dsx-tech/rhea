@@ -2,6 +2,7 @@ package uk.dsx.reactiveconfig
 
 import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ReactiveConfig private constructor(
     private val manager: ConfigManager,
@@ -18,6 +19,7 @@ class ReactiveConfig private constructor(
                 propertyCreationFunctions.add {
                     ReloadableFactory.createReloadable(
                         key,
+                        AtomicBoolean(false),
                         type,
                         manager.mapOfProperties,
                         manager.mapOfSources,
@@ -47,6 +49,7 @@ class ReactiveConfig private constructor(
     fun <T> reloadable(key: String, type: PropertyType<T>): Reloadable<T> {
         return ReloadableFactory.createReloadable(
             key,
+            AtomicBoolean(false),
             type,
             properties,
             manager.mapOfSources,
