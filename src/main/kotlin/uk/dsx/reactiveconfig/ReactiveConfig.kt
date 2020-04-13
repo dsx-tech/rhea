@@ -9,7 +9,7 @@ class ReactiveConfig private constructor(
 ) {
     val logger = KotlinLogging.logger {}
 
-    class Builder() {
+    class Builder {
         private val manager: ConfigManager = ConfigManager()
         private val propertyCreationFunctions: MutableList<() -> Unit> = mutableListOf()
 

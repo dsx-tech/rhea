@@ -8,11 +8,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 object ReactiveConfigTest : Spek({
-    val config = ReactiveConfig {
-        "property" of stringType
-    }
     val source = ConfigMock()
-    config.addConfigSource("ConfigMock", source)
+
+    val config = ReactiveConfig.Builder()
+        .addSource("configMock", source)
+        .build()
 
     describe("ReactiveConfig creation") {
         it("should be not null") {

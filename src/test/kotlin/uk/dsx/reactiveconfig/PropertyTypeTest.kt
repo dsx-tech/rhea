@@ -7,9 +7,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 object PropertyTypeTest : Spek({
-    val config = ReactiveConfig {}
     val source = ConfigMock()
-    config.addConfigSource("ConfigMock", source)
+
+    val config = ReactiveConfig.Builder()
+        .addSource("configMock", source)
+        .build()
 
     describe("declaration") {
         val server = config.reloadable("server", stringType)
@@ -61,14 +63,7 @@ object PropertyTypeTest : Spek({
         val stringProperty = config.reloadable("stringProperty", stringType)
 
         source.pushChanges("stringProperty", "something1")
-        while (true) {
-            if (stringProperty.get() != "") break
-        }
-
         source.pushChanges("stringProperty", "something2")
-        while (true) {
-            if (stringProperty.get() != "something1") break
-        }
 
         it("value of property should have been changed to 'something2'") {
             assertEquals("something2", stringProperty.get())
@@ -79,9 +74,6 @@ object PropertyTypeTest : Spek({
         val intProperty = config.reloadable("intProperty", intType)
 
         source.pushChanges("intProperty", 1313)
-        while (true) {
-            if (intProperty.get() != 0) break
-        }
 
         it("value of property should have been changed to 1313") {
             assertEquals(1314, intProperty.get() + 1)
@@ -92,9 +84,6 @@ object PropertyTypeTest : Spek({
         val longProperty = config.reloadable("longProperty", longType)
 
         source.pushChanges("longProperty", 1212L)
-        while (true) {
-            if (longProperty.get() != 0L) break
-        }
 
         it("value of property should have been changed to 1212") {
             assertEquals(1212L, longProperty.get())
@@ -105,9 +94,6 @@ object PropertyTypeTest : Spek({
         val floatProperty = config.reloadable("floatProperty", floatType)
 
         source.pushChanges("floatProperty", 1414F)
-        while (true) {
-            if (floatProperty.get() != 0F) break
-        }
 
         it("value of property should have been changed to 1414") {
             assertEquals(1414F, floatProperty.get())
@@ -118,9 +104,6 @@ object PropertyTypeTest : Spek({
         val doubleProperty = config.reloadable("doubleProperty", doubleType)
 
         source.pushChanges("doubleProperty", 1515.0)
-        while (true) {
-            if (doubleProperty.get() != 0.0) break
-        }
 
         it("value of property should have been changed to 1515") {
             assertEquals(1515.0, doubleProperty.get())
@@ -131,9 +114,6 @@ object PropertyTypeTest : Spek({
         val booleanProperty = config.reloadable("booleanProperty", booleanType)
 
         source.pushChanges("booleanProperty", true)
-        while (true) {
-            if (booleanProperty.get()) break
-        }
 
         it("value of property should have been changed to true") {
             assertTrue(booleanProperty.get())
