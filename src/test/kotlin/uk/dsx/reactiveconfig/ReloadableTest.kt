@@ -1,27 +1,57 @@
 package uk.dsx.reactiveconfig
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import uk.dsx.reactiveconfig.configsources.JsonConfigSource
-import java.io.File
-import java.nio.file.Paths
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertEquals
 
 object ReloadableTest : Spek({
-    val jsonSource =
-        JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json")
+    val reloadable1: Reloadable<Int> = Reloadable(
+        0,
+        flow {
+            for (i in 1 until 10) {
+                emit(i)
+            }
+        },
+        CoroutineScope(EmptyCoroutineContext)
+    )
 
-    val config = ReactiveConfig.Builder()
-        .addSource("jsonConfig", jsonSource)
-        .build()
+    val reloadable2: Reloadable<Int> = Reloadable(
+        0,
+        flow {
+            for (i in 1 until 5) {
+                emit(i)
+            }
+        },
+        CoroutineScope(EmptyCoroutineContext)
+    )
 
-    describe("calling map") {
-        val property: Reloadable<String> = config.reloadable("number", intType).map { value ->
-            value.toString()
+    describe("calling onChange()") {
+        var sum = 0
+        var mul = 1
+
+        runBlocking {
+            reloadable1.onChange {
+                sum += it
+            }
+            reloadable2.onChange {
+                mul *= it
+            }
         }
 
-        it("should contain string value 14") {
-            assertEquals("14", property.get())
+        it("total sum of emitted values in reloadable1 should be 45") {
+            assertEquals(45, sum)
+        }
+
+        it("total multiplication of emitted values in reloadable2 should be 24") {
+            assertEquals(24, mul)
+        }
+
+        it("final value in reloadable1 should be 9") {
+            assertEquals(9, reloadable1.get())
         }
     }
 })

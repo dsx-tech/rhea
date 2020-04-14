@@ -21,47 +21,27 @@ object ReactiveConfigTest : Spek({
     }
 
     describe("typed access to mapOfProperties") {
-        val prop = config.reloadable("prop", intType)
-        source.pushChanges("prop", 3)
+        source.addToMap("prop", 3)
+        val prop = config.getReloadable("prop", intType)
 
         it("sum of prop's value of reloadable from map and 7 should be 10") {
-            assertEquals(10, config.getReloadable<Int>("prop")!!.get() + 7)
+            assertEquals(10, config.getReloadable("prop", intType)!!.get() + 7)
         }
 
         it ("null should be returned because of a wrong type specified") {
-            assertNull(config.getReloadable<String>("prop"))
+            assertNull(config.getReloadable("prop", stringType))
         }
 
         it ("null should be returned because property with key='propp' doesn't exist") {
-            assertNull(config.getReloadable<Int>("propp"))
+            assertNull(config.getReloadable("propp", intType))
         }
 
-        val prop1 = config.reloadable("prop1", booleanType)
-        source.pushChanges("prop1", true)
+        source.addToMap("prop1", true)
+        val prop1 = config.getReloadable("prop1", booleanType)
 
         it("value of reloadable with key='prop1' from map should be 'true'") {
             assertTrue(config.getReloadable("prop1", booleanType)!!.get())
         }
     }
 
-    describe("reloadable creation with infix function 'of'") {
-        source.pushChanges("property", "something")
-
-        it("reloadable from map should contain a new value of updated property with key=property") {
-            assertEquals("something", (config.getReloadable<String>("property")!!.get()))
-        }
-    }
-
-    describe("reloadable creation with function reloadable() where name can be changed") {
-        val reloadable = config.reloadable("server.port", intType)
-        source.pushChanges("server.port", 1313)
-
-        it("reloadable from map should contain a new value of updated property with key=server.port") {
-            assertEquals(1313, (reloadable.get()))
-        }
-
-        it("calling get() on Reloadable directly should return the same new value") {
-            assertEquals(1313, (reloadable.get()))
-        }
-    }
 })
