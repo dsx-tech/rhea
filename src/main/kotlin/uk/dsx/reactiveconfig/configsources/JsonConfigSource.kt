@@ -40,8 +40,15 @@ class JsonConfigSource : ConfigSource {
 
         configScope.launch(newSingleThreadContext("watching thread")) {
             try {
-                var inputStream: InputStream
-                var parsed: JsonObject
+                var inputStream = file.inputStream()
+                var parsed = parser.parse(inputStream) as JsonObject
+
+                for (obj in parsed.map) {
+                    map[obj.key] = toNode(obj.value)
+
+                }
+
+                inputStream.close()
 
                 while (true) {
                     inputStream = file.inputStream()
@@ -55,10 +62,10 @@ class JsonConfigSource : ConfigSource {
                     }
 
                     for (obj in parsed.map) {
-                        toNode(obj.value).also {
-                            if (map[obj.key] != it) {
-                                map[obj.key] = it
-                                channel.send(RawProperty(obj.key, it))
+                        with(toNode(obj.value)) {
+                            if (map[obj.key] != this) {
+                                map[obj.key] = this
+                                channel.send(RawProperty(obj.key, this))
                             }
                         }
                     }
@@ -71,26 +78,8 @@ class JsonConfigSource : ConfigSource {
         }
     }
 
-    override fun pushValue(key: String) {
-        configScope.launch {
-            try {
-                val inputStream = file.inputStream()
-                val parsed = parser.parse(inputStream) as JsonObject
-
-                for (obj in parsed.map) {
-                    if (obj.key == key) {
-                        toNode(obj.value).also {
-                            map[obj.key] = it
-                            channel.send(RawProperty(obj.key, it))
-                        }
-                    }
-                }
-
-                inputStream.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+    override fun getNode(key: String): Node? {
+        return map[key]
     }
 
     private fun toNode(obj: Any?): Node? {
