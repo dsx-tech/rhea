@@ -93,6 +93,4 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
             }
         }
     }
-
-    // todo: fun <F> map(function: (T) -> (F)): Reloadable<F>
 }

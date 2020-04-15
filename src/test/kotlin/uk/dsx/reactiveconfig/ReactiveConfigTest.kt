@@ -28,11 +28,11 @@ object ReactiveConfigTest : Spek({
             assertEquals(10, config.getReloadable("prop", intType)!!.get() + 7)
         }
 
-        it ("null should be returned because of a wrong type specified") {
+        it("null should be returned because of a wrong type specified") {
             assertNull(config.getReloadable("prop", stringType))
         }
 
-        it ("null should be returned because property with key='propp' doesn't exist") {
+        it("null should be returned because property with key='propp' doesn't exist") {
             assertNull(config.getReloadable("propp", intType))
         }
 
@@ -43,5 +43,4 @@ object ReactiveConfigTest : Spek({
             assertTrue(config.getReloadable("prop1", booleanType)!!.get())
         }
     }
-
 })

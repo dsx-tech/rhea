@@ -23,17 +23,6 @@ fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
     })
 }
 
-fun <T, F> PropertyType<T>.transform(initial: F, function: (T) -> F): PropertyType<F> {
-    return PropertyType(initial, { node: Node? ->
-        parse(node).let { result: ParseResult<T?> ->
-            when (result) {
-                is ParseResult.Success -> ParseResult.Success(result.value?.let { function(it) })
-                else -> ParseResult.Failure()
-            }
-        }
-    })
-}
-
 class PropertyType<T>(val initial: T, val parse: (Node?) -> ParseResult<T?>)
 
 val stringType: PropertyType<String> = PropertyType("", { node: Node? ->

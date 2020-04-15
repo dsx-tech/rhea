@@ -40,13 +40,17 @@ object PropertyTypeTest : Spek({
     }
 
     describe("stringType") {
-        source.addToMap("stringProperty", "something2")
+        source.addToMap("stringProperty", "something1")
         val stringProperty = config.getReloadable("stringProperty", stringType)
 
-        it("value of property should have been changed to 'something2'") {
-            assertEquals("something2", stringProperty!!.get())
-        }
+        Thread.sleep(10)
+        source.pushChanges("stringProperty", "something2")
+
+            it("value of property should have been changed to 'something2'") {
+                assertEquals("something2", stringProperty!!.get())
+            }
     }
+
 
     describe("intType") {
         source.addToMap("intProperty", 1313)
