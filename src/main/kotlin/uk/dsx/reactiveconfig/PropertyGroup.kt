@@ -4,9 +4,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KProperty
 
 open class PropertyGroup {
-    var keyList = ConcurrentHashMap<String, PropertyType<*>>()
-    private val name = name()
-
     private fun outer(): String? {
         var classPointer = this::class.java.enclosingClass?.kotlin?.objectInstance as? PropertyGroup
         var classPath = ""
