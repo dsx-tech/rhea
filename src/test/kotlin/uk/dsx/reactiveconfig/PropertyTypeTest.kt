@@ -15,7 +15,7 @@ object PropertyTypeTest : Spek({
 
     describe("calling nullable()") {
         source.addToMap("nullableStringProperty", null)
-        val nullableStringProperty = config.getReloadable("nullableStringProperty", stringType.nullable())
+        val nullableStringProperty = config.get("nullableStringProperty", stringType.nullable())
 
         it("value of property should have been changed to null") {
             assertNull(nullableStringProperty!!.get())
@@ -25,8 +25,8 @@ object PropertyTypeTest : Spek({
     describe("accessing one property twice") {
         source.addToMap("property", "something")
 
-        val property1 = config.getReloadable("property", stringType)
-        val property2 = config.getReloadable("property", stringType)
+        val property1 = config.get("property", stringType)
+        val property2 = config.get("property", stringType)
 
         it("the same reloadable should be in both: property1 and property2") {
             assertEquals(property1, property2)
@@ -41,7 +41,7 @@ object PropertyTypeTest : Spek({
 
     describe("stringType") {
         source.addToMap("stringProperty", "something1")
-        val stringProperty = config.getReloadable("stringProperty", stringType)
+        val stringProperty = config.get("stringProperty", stringType)
 
         Thread.sleep(10)
         source.pushChanges("stringProperty", "something2")
@@ -54,7 +54,7 @@ object PropertyTypeTest : Spek({
 
     describe("intType") {
         source.addToMap("intProperty", 1313)
-        val intProperty = config.getReloadable("intProperty", intType)
+        val intProperty = config.get("intProperty", intType)
 
         it("value of property should have been changed to 1313") {
             assertEquals(1314, intProperty!!.get() + 1)
@@ -63,7 +63,7 @@ object PropertyTypeTest : Spek({
 
     describe("longType") {
         source.addToMap("longProperty", 1212L)
-        val longProperty = config.getReloadable("longProperty", longType)
+        val longProperty = config.get("longProperty", longType)
 
         it("value of property should have been changed to 1212") {
             assertEquals(1212L, longProperty!!.get())
@@ -72,7 +72,7 @@ object PropertyTypeTest : Spek({
 
     describe("floatType") {
         source.addToMap("floatProperty", 1414F)
-        val floatProperty = config.getReloadable("floatProperty", floatType)
+        val floatProperty = config.get("floatProperty", floatType)
 
         it("value of property should have been changed to 1414") {
             assertEquals(1414F, floatProperty!!.get())
@@ -81,7 +81,7 @@ object PropertyTypeTest : Spek({
 
     describe("doubleType") {
         source.addToMap("doubleProperty", 1515.0)
-        val doubleProperty = config.getReloadable("doubleProperty", doubleType)
+        val doubleProperty = config.get("doubleProperty", doubleType)
 
         it("value of property should have been changed to 1515") {
             assertEquals(1515.0, doubleProperty!!.get())
@@ -90,7 +90,7 @@ object PropertyTypeTest : Spek({
 
     describe("booleanType") {
         source.addToMap("booleanProperty", true)
-        val booleanProperty = config.getReloadable("booleanProperty", booleanType)
+        val booleanProperty = config.get("booleanProperty", booleanType)
 
         it("value of property should have been changed to true") {
             assertTrue(booleanProperty!!.get())

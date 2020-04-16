@@ -1,7 +1,5 @@
 package uk.dsx.reactiveconfig
 
-import kotlin.reflect.KProperty
-
 sealed class Node
 data class ObjectNode(val value: MutableMap<String, Node?>) : Node()
 data class NumericNode(val value: String) : Node()

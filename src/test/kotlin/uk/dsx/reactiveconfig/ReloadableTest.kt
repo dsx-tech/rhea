@@ -63,7 +63,7 @@ object ReloadableTest : Spek({
 
     describe("calling map") {
         source.addToMap("number", 14)
-        val property = config.getReloadable("number", intType) as Reloadable<Int>
+        val property = config["number", intType] as Reloadable<Int>
 
         val mappedProperty: Reloadable<String> = property.map { value ->
             value.toString()
@@ -78,11 +78,11 @@ object ReloadableTest : Spek({
     }
 
     describe("calling combine") {
-        source.addToMap("number1", 1)
-        source.addToMap("number2", 2)
+        source.addToMap("number1", 0)
+        source.addToMap("number2", 0)
 
-        val property1 = config.getReloadable("number1", intType) as Reloadable<Int>
-        val property2 = config.getReloadable("number2", intType) as Reloadable<Int>
+        val property1 = config["number1", intType] as Reloadable<Int>
+        val property2 = config["number2", intType] as Reloadable<Int>
 
         val combinedProperty = property1.combine(property2) {i1, i2 ->
             i1 + i2
