@@ -7,136 +7,93 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 object PropertyTypeTest : Spek({
-    val config = ReactiveConfig {}
     val source = ConfigMock()
-    config.addConfigSource("ConfigMock", source)
 
-    describe("declaration") {
-        val server = config.reloadable("server", stringType)
-
-        it("should contain initial value") {
-            assertEquals("", server.get())
-        }
-    }
+    val config = ReactiveConfig.Builder()
+        .addSource("configMock", source)
+        .build()
 
     describe("calling nullable()") {
-        val nullableStringProperty = config.reloadable("nullableStringProperty", stringType.nullable())
-
-        source.pushChanges("nullableStringProperty", "notNull")
-        while (true) {
-            if (nullableStringProperty.get() != "") break
-        }
-
-        source.pushChanges("nullableStringProperty", null)
-        while (true) {
-            if (nullableStringProperty.get() != "notNull") break
-        }
+        source.addToMap("nullableStringProperty", null)
+        val nullableStringProperty = config.getReloadable("nullableStringProperty", stringType.nullable())
 
         it("value of property should have been changed to null") {
-            assertNull(nullableStringProperty.get())
+            assertNull(nullableStringProperty!!.get())
         }
     }
 
     describe("accessing one property twice") {
-        val property1 = config.reloadable("property", stringType)
-        val property2 = config.reloadable("property", stringType)
+        source.addToMap("property", "something")
 
-        source.pushChanges("property", "something")
-        while (true) {
-            if (property1.get() != "") break
-        }
+        val property1 = config.getReloadable("property", stringType)
+        val property2 = config.getReloadable("property", stringType)
 
         it("the same reloadable should be in both: property1 and property2") {
             assertEquals(property1, property2)
         }
         it("value of property1 should have been changed to 'something'") {
-            assertEquals("something", property1.get())
+            assertEquals("something", property1!!.get())
         }
         it("value of property2 should also have been changed to 'something'") {
-            assertEquals("something", property2.get())
+            assertEquals("something", property2!!.get())
         }
     }
 
     describe("stringType") {
-        val stringProperty = config.reloadable("stringProperty", stringType)
+        source.addToMap("stringProperty", "something1")
+        val stringProperty = config.getReloadable("stringProperty", stringType)
 
-        source.pushChanges("stringProperty", "something1")
-        while (true) {
-            if (stringProperty.get() != "") break
-        }
-
+        Thread.sleep(10)
         source.pushChanges("stringProperty", "something2")
-        while (true) {
-            if (stringProperty.get() != "something1") break
-        }
 
         it("value of property should have been changed to 'something2'") {
-            assertEquals("something2", stringProperty.get())
+            assertEquals("something2", stringProperty!!.get())
         }
     }
 
-    describe("intType") {
-        val intProperty = config.reloadable("intProperty", intType)
 
-        source.pushChanges("intProperty", 1313)
-        while (true) {
-            if (intProperty.get() != 0) break
-        }
+    describe("intType") {
+        source.addToMap("intProperty", 1313)
+        val intProperty = config.getReloadable("intProperty", intType)
 
         it("value of property should have been changed to 1313") {
-            assertEquals(1314, intProperty.get() + 1)
+            assertEquals(1314, intProperty!!.get() + 1)
         }
     }
 
     describe("longType") {
-        val longProperty = config.reloadable("longProperty", longType)
-
-        source.pushChanges("longProperty", 1212L)
-        while (true) {
-            if (longProperty.get() != 0L) break
-        }
+        source.addToMap("longProperty", 1212L)
+        val longProperty = config.getReloadable("longProperty", longType)
 
         it("value of property should have been changed to 1212") {
-            assertEquals(1212L, longProperty.get())
+            assertEquals(1212L, longProperty!!.get())
         }
     }
 
     describe("floatType") {
-        val floatProperty = config.reloadable("floatProperty", floatType)
-
-        source.pushChanges("floatProperty", 1414F)
-        while (true) {
-            if (floatProperty.get() != 0F) break
-        }
+        source.addToMap("floatProperty", 1414F)
+        val floatProperty = config.getReloadable("floatProperty", floatType)
 
         it("value of property should have been changed to 1414") {
-            assertEquals(1414F, floatProperty.get())
+            assertEquals(1414F, floatProperty!!.get())
         }
     }
 
     describe("doubleType") {
-        val doubleProperty = config.reloadable("doubleProperty", doubleType)
-
-        source.pushChanges("doubleProperty", 1515.0)
-        while (true) {
-            if (doubleProperty.get() != 0.0) break
-        }
+        source.addToMap("doubleProperty", 1515.0)
+        val doubleProperty = config.getReloadable("doubleProperty", doubleType)
 
         it("value of property should have been changed to 1515") {
-            assertEquals(1515.0, doubleProperty.get())
+            assertEquals(1515.0, doubleProperty!!.get())
         }
     }
 
     describe("booleanType") {
-        val booleanProperty = config.reloadable("booleanProperty", booleanType)
-
-        source.pushChanges("booleanProperty", true)
-        while (true) {
-            if (booleanProperty.get()) break
-        }
+        source.addToMap("booleanProperty", true)
+        val booleanProperty = config.getReloadable("booleanProperty", booleanType)
 
         it("value of property should have been changed to true") {
-            assertTrue(booleanProperty.get())
+            assertTrue(booleanProperty!!.get())
         }
     }
 })

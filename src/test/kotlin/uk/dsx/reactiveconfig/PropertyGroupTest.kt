@@ -2,40 +2,40 @@ package uk.dsx.reactiveconfig
 
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import uk.dsx.reactiveconfig.configsources.FileConfigSource
-import java.io.File
-import java.nio.file.Paths
 import kotlin.test.assertNotNull
-object outer : PropertyGroup({
-    "first" of stringType
-    "inside" of {
-        "deeper" of {
-            "anotherone" of stringType
+import kotlin.test.assertTrue
+
+object outer : PropertyGroup(){
+    val first by booleanType
+    object inside : PropertyGroup() {
+        object deeper : PropertyGroup() {
+            val anotherone by intType
         }
-        "third" of stringType
+        val third by stringType
     }
-})
+}
 
 object PropertyGroupTest : Spek({
-    val config = ReactiveConfig {
-        val second = "second" of stringType
-        register(outer)
+    val source = ConfigMock()
+    val config = ReactiveConfig.Builder()
+        .addSource("configMock", source)
+        .build()
+    describe("emitting values with our keys"){
+        source.addToMap("outer.inside.deeper.anotherone", 3)
+        source.addToMap("outer.inside.third", "three")
+        source.addToMap("outer.first", true)
     }
-    config.addConfigSource(
-        "config",
-        FileConfigSource(
-            Paths.get("src" + File.separator + "test" + File.separator + "resources").toRealPath(),
-            "config"
-        )
-    )
-    describe("checks if keys contains in config manager")
+    describe("asserting that right keys created")
     {
-        val map = config.manager.mapOfProperties
-        it ("should contain these keys"){
-            assertNotNull(map.containsKey("second"))
-            assertNotNull(map.containsKey("outer.portagain"))
-            assertNotNull(map.containsKey("outer.inside.third"))
-            assertNotNull(map.containsKey("outer.inside.deeper.anotherone"))
+        it("should be not null") {
+            assertNotNull(config[outer.inside.deeper.anotherone])
+            assertNotNull(config[outer.inside.third])
+            assertNotNull(config[outer.first])
+        }
+        it("keys should be added to the map"){
+            assertTrue(config.manager.mapOfProperties.containsKey("outer.inside.deeper.anotherone"))
+            assertTrue(config.manager.mapOfProperties.containsKey("outer.inside.third"))
+            assertTrue(config.manager.mapOfProperties.containsKey("outer.first"))
         }
     }
 })

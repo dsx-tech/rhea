@@ -1,26 +1,27 @@
 package uk.dsx.reactiveconfig
 
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.reflect.KProperty
 
-open class PropertyGroup(block: PropertyGroup.() -> Unit) {
+open class PropertyGroup {
     var keyList = ConcurrentHashMap<String, PropertyType<*>>()
-    var toAdd : String = ""
+    private val name = name()
 
-    init {
-        toAdd += javaClass.kotlin.simpleName?.substringBefore("$") ?:
-                throw IllegalArgumentException("cannot determine name of property group")
-        apply(block)
+    private fun outer(): String? {
+        var classPointer = this::class.java.enclosingClass?.kotlin?.objectInstance as? PropertyGroup
+        var classPath = ""
+        while (classPointer != null) {
+            classPath = classPointer::class.simpleName + "." + classPath
+            classPointer = classPointer::class.java.enclosingClass?.kotlin?.objectInstance as? PropertyGroup
+        }
+        return classPath
     }
 
-    infix fun <T> String.of(type: PropertyType<T>) {
-        keyList["$toAdd.$this"] = type
-    }
+    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$")?: "-"
 
-    infix fun String.of(block : () -> Unit){
-        val temp = toAdd
-        toAdd += "." + this
-        block.invoke()
-        toAdd = temp
+    private fun name(): String = outer() + groupName()
+
+    operator fun <T> PropertyType<T>.getValue(group: PropertyGroup, property: KProperty<*>) : Pair<PropertyType<T>, String> {
+        return Pair(this, name() + "." + property.name)
     }
 }

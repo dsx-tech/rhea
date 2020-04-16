@@ -2,6 +2,7 @@ package uk.dsx.reactiveconfig.configsources
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
+import uk.dsx.reactiveconfig.Node
 import uk.dsx.reactiveconfig.RawProperty
 import uk.dsx.reactiveconfig.StringNode
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
@@ -49,7 +50,7 @@ class FileConfigSource(private val directory: Path, private val fileName: String
         }
     }
 
-    override fun pushValue(key: String) {
+    override fun getNode(key: String): Node? {
         TODO("Not yet implemented")
     }
 
