@@ -24,7 +24,7 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly BooleanNode from json") {
-        val isSomethingOn = config.getReloadable("isSomethingOn", booleanType)
+        val isSomethingOn = config.get("isSomethingOn", booleanType)
 
         it("should contain value 'true' sent from JsonConfigSource") {
             assertTrue(isSomethingOn!!.get())
@@ -32,7 +32,7 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly StringNode from json") {
-        val property = config.getReloadable("property", stringType)
+        val property = config.get("property", stringType)
 
         it("should contain value 'someInfo' sent from JsonConfigSource") {
             assertEquals("someInfo", property!!.get())

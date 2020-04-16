@@ -23,9 +23,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
         }
     }
 
-    // todo: fun <T> getReloadable(key: String)
-
-    inline fun <reified T> getReloadable(key: String, type: PropertyType<T>): Reloadable<T>? {
+    inline operator fun <reified T> get(key: String, type: PropertyType<T>): Reloadable<T>? {
         if (manager.mapOfProperties.containsKey(key)) {
             with(manager.mapOfProperties[key]) {
                 return if (this!!.get() is T) {
@@ -38,6 +36,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
         } else {
             synchronized(this) {
                 if (!manager.mapOfProperties.containsKey(key)) {
+                    var isSet = false
                     var initialValue: T = type.initial
 
                     for (source in manager.mapOfSources.values) {
@@ -45,15 +44,16 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                             when (this) {
                                 is ParseResult.Success -> {
                                     initialValue = this.value as T
+                                    isSet = true
                                 }
                                 is ParseResult.Failure -> logger.error("Wrong type of property: $key")
                             }
                         }
 
-                        if (initialValue != type.initial) break
+                        if (isSet) break
                     }
 
-                    if (initialValue != type.initial) {
+                    if (isSet) {
                         return Reloadable(
                             initialValue,
                             manager.flowOfChanges
@@ -75,7 +75,6 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                         ).also {
                             manager.mapOfProperties[key] = it
                         }
-
                     } else {
                         logger.error("Couldn't find property with key=$key in any config sources")
                         return null
