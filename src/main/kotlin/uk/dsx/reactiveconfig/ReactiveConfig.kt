@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import kotlin.reflect.KProperty
 
 class ReactiveConfig private constructor(val manager: ConfigManager) {
     val logger = KotlinLogging.logger {}
@@ -95,7 +96,9 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
     }
     //operator fun get(key: String) = manager.mapOfProperties[key]?.get()
 
-    inline operator  fun <reified T> get(pair: Pair<PropertyType<T>, String>) = getReloadable(pair.second, pair.first)?.get()
+    operator fun <T> PropertyType<T>.getValue(config: ReactiveConfig, property: KProperty<*>) = Pair(this, property.name)
+
+    inline operator  fun <reified T> get(pair: Pair<PropertyType<T>, String>) = getReloadable(pair.second, pair.first)
 
     // todo: fun <F> map(function: (T) -> (F)): Reloadable<F>
 }

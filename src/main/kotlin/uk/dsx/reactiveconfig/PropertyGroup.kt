@@ -1,6 +1,5 @@
 package uk.dsx.reactiveconfig
 
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KProperty
 
 open class PropertyGroup {
@@ -14,11 +13,10 @@ open class PropertyGroup {
         return classPath
     }
 
-    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$")?: "-"
+    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$") ?: "-"
 
     private fun name(): String = outer() + groupName()
 
-    operator fun <T> PropertyType<T>.getValue(group: PropertyGroup, property: KProperty<*>) : Pair<PropertyType<T>, String> {
-        return Pair(this, name() + "." + property.name)
-    }
+    operator fun <T> PropertyType<T>.getValue(group: PropertyGroup, property: KProperty<*>) =
+        Pair(this, name() + "." + property.name)
 }
