@@ -21,7 +21,7 @@ class JsonConfigSource : ConfigSource {
     private val map: HashMap<String, Node?> = HashMap()
 
     private val watchService: WatchService = FileSystems.getDefault().newWatchService()
-    private lateinit var key: WatchKey
+    private lateinit var watchKey: WatchKey
     private val parser: Parser = Parser.default()
 
     constructor(directory: Path, fileName: String) {
@@ -45,7 +45,6 @@ class JsonConfigSource : ConfigSource {
 
                 for (obj in parsed.map) {
                     map[obj.key] = toNode(obj.value)
-
                 }
 
                 inputStream.close()
@@ -54,7 +53,7 @@ class JsonConfigSource : ConfigSource {
                     inputStream = file.inputStream()
 
                     parsed = try {
-                        key = watchService.take()
+                        watchKey = watchService.take()
                         parser.parse(inputStream) as JsonObject
                     } catch (e: Exception) {
                         delay(10)
@@ -69,7 +68,7 @@ class JsonConfigSource : ConfigSource {
                             }
                         }
                     }
-                    key.reset()
+                    watchKey.reset()
                     inputStream.close()
                 }
             } catch (e: Exception) {
