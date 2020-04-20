@@ -1,18 +1,17 @@
 package uk.dsx.reactiveconfig.configsources
 
-import com.beust.klaxon.JsonArray
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
+import org.yaml.snakeyaml.Yaml
 import uk.dsx.reactiveconfig.*
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 import java.io.File
+import java.io.IOException
 import java.nio.file.*
 
-class JsonConfigSource : ConfigSource {
+class YamlConfigSource : ConfigSource {
     private val file: File
     private lateinit var channel: SendChannel<RawProperty>
     private lateinit var configScope: CoroutineScope
@@ -20,7 +19,6 @@ class JsonConfigSource : ConfigSource {
 
     private val watchService: WatchService = FileSystems.getDefault().newWatchService()
     private lateinit var watchKey: WatchKey
-    private val parser: Parser = Parser.default()
 
     constructor(directory: Path, fileName: String) {
         try {
@@ -38,10 +36,12 @@ class JsonConfigSource : ConfigSource {
 
         configScope.launch(newSingleThreadContext("watching thread")) {
             try {
+                val yaml = Yaml()
                 var inputStream = file.inputStream()
-                var parsed = parser.parse(inputStream) as JsonObject
+                var parsed =
+                    yaml.load(inputStream) as? Map<String, Any> ?: error("File ${file.name} is not formatted correctly")
 
-                for (obj in parsed.map) {
+                for (obj in parsed) {
                     map[obj.key] = toNode(obj.value)
                 }
                 inputStream.close()
@@ -58,9 +58,10 @@ class JsonConfigSource : ConfigSource {
 
                         if (changed.endsWith(file.name)) {
                             inputStream = file.inputStream()
-                            parsed = parser.parse(inputStream) as JsonObject
+                            parsed = yaml.load(inputStream) as? Map<String, Any>
+                                ?: error("File ${file.name} is not formatted correctly")
 
-                            for (obj in parsed.map) {
+                            for (obj in parsed) {
                                 with(toNode(obj.value)) {
                                     if (map[obj.key] != this) {
                                         map[obj.key] = this
@@ -93,17 +94,17 @@ class JsonConfigSource : ConfigSource {
             is Float -> NumericNode(obj.toString())
             is Double -> NumericNode(obj.toString())
             is Boolean -> BooleanNode(obj)
-            is JsonArray<*> -> {
+            is List<*> -> {
                 val result = mutableListOf<Node?>()
-                for (el in obj.value) {
+                for (el in obj) {
                     result.add(toNode(el))
                 }
                 ArrayNode(result)
             }
-            is JsonObject -> {
+            is Map<*, *> -> {
                 val result = mutableMapOf<String, Node?>()
-                for (el in obj.map) {
-                    result[el.key] = toNode(el.value)
+                for (el in obj) {
+                    result[el.key.toString()] = toNode(el.value)
                 }
                 ObjectNode(result)
             }
