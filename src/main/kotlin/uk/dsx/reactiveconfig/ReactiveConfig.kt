@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import kotlin.reflect.KProperty
 
 class ReactiveConfig private constructor(val manager: ConfigManager) {
     val logger = KotlinLogging.logger {}
@@ -92,4 +93,6 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
             }
         }
     }
+
+    inline operator  fun <reified T> get(pair: Pair<PropertyType<T>, String>) = get(pair.second, pair.first)
 }
