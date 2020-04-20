@@ -7,30 +7,31 @@ import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertEquals
 
-object PropertiesConfigSourceTest : Spek({
-    val propertiesSource =
-        PropertiesConfigSource(
+object YamlConfigSourceTest : Spek({
+
+    val yamlSource =
+        YamlConfigSource(
             Paths.get("src" + File.separator + "test" + File.separator + "resources"),
-            "propertiesSource.properties"
+            "yamlSource.yml"
         )
 
     val config = ReactiveConfig.Builder()
-        .addSource("propertiesConfig", propertiesSource)
+        .addSource("yamlConfig", yamlSource)
         .build()
 
     describe("checks reading properly string property") {
-        val name = config["login", stringType]
+        val job = config["job", stringType]
 
-        it("should contain value 'Felix' sent from PropertiesConfigSource") {
-            assertEquals("Felix", name!!.get())
+        it("should contain value 'Developer' sent from YamlConfigSource") {
+            assertEquals("Developer", job!!.get())
         }
     }
 
     describe("checks reading properly integer property") {
-        val number = config["password", intType]
+        val number = config["age", intType]
 
-        it("should contain value 1234 sent from PropertiesConfigSource") {
-            assertEquals(1234, number!!.get())
+        it("should contain value 13 sent from YamlConfigSource") {
+            assertEquals(27, number!!.get())
         }
     }
 })

@@ -1,0 +1,13 @@
+---
+# An employee record
+name: Felix Newton
+age: 27
+job: Developer
+skill: so so
+employed: True
+foods:
+  - Apple: [1, 2, 3]
+languages:
+  java: Elite
+  python: OK
+  pascal: Lame

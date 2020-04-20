@@ -6,7 +6,6 @@ import uk.dsx.reactiveconfig.*
 import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 object JsonConfigSourceTest : Spek({
@@ -17,14 +16,8 @@ object JsonConfigSourceTest : Spek({
         .addSource("jsonConfig", jsonSource)
         .build()
 
-    describe("resource check") {
-        it("should be initialised") {
-            assertNotNull(jsonSource)
-        }
-    }
-
     describe("checks reading properly BooleanNode from json") {
-        val isSomethingOn = config.get("isSomethingOn", booleanType)
+        val isSomethingOn = config["isSomethingOn", booleanType]
 
         it("should contain value 'true' sent from JsonConfigSource") {
             assertTrue(isSomethingOn!!.get())
@@ -32,7 +25,7 @@ object JsonConfigSourceTest : Spek({
     }
 
     describe("checks reading properly StringNode from json") {
-        val property = config.get("property", stringType)
+        val property = config["property", stringType]
 
         it("should contain value 'someInfo' sent from JsonConfigSource") {
             assertEquals("someInfo", property!!.get())

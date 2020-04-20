@@ -17,7 +17,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0")
     implementation(kotlin("stdlib-jdk8"))
-    implementation ("com.beust:klaxon:5.0.1")
+    implementation("com.beust:klaxon:5.0.1")
 
     testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
     testImplementation(kotlin("test"))
@@ -26,6 +26,7 @@ dependencies {
 
     compile("org.slf4j:slf4j-simple:1.7.26")
     compile("io.github.microutils:kotlin-logging:1.7.8")
+    compile("org.yaml:snakeyaml:1.18")
 }
 
 tasks.withType<KotlinCompile> {
