@@ -5,14 +5,12 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import uk.dsx.reactiveconfig.*
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
-import java.net.URI
+import java.io.File
 import java.nio.file.*
-import java.io.*
 
 class JsonConfigSource : ConfigSource {
     private val file: File
@@ -25,13 +23,13 @@ class JsonConfigSource : ConfigSource {
     private val parser: Parser = Parser.default()
 
     constructor(directory: Path, fileName: String) {
-        directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        try {
+            directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         file = Paths.get(directory.toAbsolutePath().toString() + File.separator + fileName).toFile()
-    }
-
-    constructor(uri: URI) {
-        Paths.get(uri).register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
-        file = Paths.get(uri).toFile() ?: error("Cannot open file: $uri")
+            ?: error("Cannot open file: $fileName")
     }
 
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
@@ -46,30 +44,37 @@ class JsonConfigSource : ConfigSource {
                 for (obj in parsed.map) {
                     map[obj.key] = toNode(obj.value)
                 }
-
                 inputStream.close()
 
                 while (true) {
-                    inputStream = file.inputStream()
-
-                    parsed = try {
+                    try {
                         watchKey = watchService.take()
-                        parser.parse(inputStream) as JsonObject
-                    } catch (e: Exception) {
-                        delay(10)
-                        parser.parse(inputStream) as JsonObject
+                    } catch (e: InterruptedException) {
+                        return@launch
                     }
 
-                    for (obj in parsed.map) {
-                        with(toNode(obj.value)) {
-                            if (map[obj.key] != this) {
-                                map[obj.key] = this
-                                channel.send(RawProperty(obj.key, this))
+                    for (event in watchKey.pollEvents()) {
+                        val changed = event.context() as Path
+
+                        if (changed.endsWith(file.name)) {
+                            inputStream = file.inputStream()
+                            parsed = parser.parse(inputStream) as JsonObject
+
+                            for (obj in parsed.map) {
+                                with(toNode(obj.value)) {
+                                    if (map[obj.key] != this) {
+                                        map[obj.key] = this
+                                        channel.send(RawProperty(obj.key, this))
+                                    }
+                                }
                             }
                         }
                     }
-                    watchKey.reset()
+
                     inputStream.close()
+                    if (!watchKey.reset()) {
+                        break
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

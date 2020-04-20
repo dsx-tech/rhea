@@ -21,8 +21,13 @@ class YamlConfigSource : ConfigSource {
     private lateinit var watchKey: WatchKey
 
     constructor(directory: Path, fileName: String) {
-        directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        try {
+            directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         file = Paths.get(directory.toAbsolutePath().toString() + File.separator + fileName).toFile()
+            ?: error("Cannot open file: $fileName")
     }
 
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
@@ -33,30 +38,44 @@ class YamlConfigSource : ConfigSource {
             try {
                 val yaml = Yaml()
                 var inputStream = file.inputStream()
-                var parsed = yaml.load(inputStream) as? Map<String, Any> ?: throw IOException("File is not formatted correctly")
+                var parsed =
+                    yaml.load(inputStream) as? Map<String, Any> ?: error("File ${file.name} is not formatted correctly")
 
                 for (obj in parsed) {
                     map[obj.key] = toNode(obj.value)
                 }
-
                 inputStream.close()
 
                 while (true) {
-                    watchKey = watchService.take()
-                    inputStream = file.inputStream()
-                    parsed = yaml.load(inputStream) as? Map<String, Any> ?: throw IOException("File is not formatted correctly")
+                    try {
+                        watchKey = watchService.take()
+                    } catch (e: InterruptedException) {
+                        return@launch
+                    }
 
-                    for (obj in parsed) {
-                        with(toNode(obj.value)) {
-                            if (map[obj.key] != this) {
-                                map[obj.key] = this
-                                channel.send(RawProperty(obj.key, this))
+                    for (event in watchKey.pollEvents()) {
+                        val changed = event.context() as Path
+
+                        if (changed.endsWith(file.name)) {
+                            inputStream = file.inputStream()
+                            parsed = yaml.load(inputStream) as? Map<String, Any>
+                                ?: error("File ${file.name} is not formatted correctly")
+
+                            for (obj in parsed) {
+                                with(toNode(obj.value)) {
+                                    if (map[obj.key] != this) {
+                                        map[obj.key] = this
+                                        channel.send(RawProperty(obj.key, this))
+                                    }
+                                }
                             }
                         }
                     }
 
-                    if (!watchKey.reset()) break
                     inputStream.close()
+                    if (!watchKey.reset()) {
+                        break
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -82,7 +101,7 @@ class YamlConfigSource : ConfigSource {
                 }
                 ArrayNode(result)
             }
-            is Map<*,*> -> {
+            is Map<*, *> -> {
                 val result = mutableMapOf<String, Node?>()
                 for (el in obj) {
                     result[el.key.toString()] = toNode(el.value)

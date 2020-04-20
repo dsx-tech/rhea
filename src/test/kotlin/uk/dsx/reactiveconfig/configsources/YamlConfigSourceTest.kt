@@ -6,7 +6,6 @@ import uk.dsx.reactiveconfig.*
 import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 object YamlConfigSourceTest : Spek({
 
@@ -19,12 +18,6 @@ object YamlConfigSourceTest : Spek({
     val config = ReactiveConfig.Builder()
         .addSource("yamlConfig", yamlSource)
         .build()
-
-    describe("resource check") {
-        it("should be initialised") {
-            assertNotNull(yamlSource)
-        }
-    }
 
     describe("checks reading properly string property") {
         val job = config["job", stringType]

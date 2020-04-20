@@ -21,8 +21,13 @@ class PropertiesConfigSource : ConfigSource {
     private lateinit var watchKey: WatchKey
 
     constructor(directory: Path, fileName: String) {
-        directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        try {
+            directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         file = Paths.get(directory.toAbsolutePath().toString() + File.separator + fileName).toFile()
+            ?: error("Cannot open file: $fileName")
     }
 
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
@@ -38,30 +43,41 @@ class PropertiesConfigSource : ConfigSource {
                 for (pair in properties) {
                     map[pair.key.toString()] = StringNode(pair.value.toString())
                 }
-
                 properties.clear()
                 inputStream.close()
 
                 while (true) {
-                    watchKey = watchService.take()
-                    inputStream = file.inputStream()
-                    properties.load(inputStream)
+                    try {
+                        watchKey = watchService.take()
+                    } catch (e: InterruptedException) {
+                        return@launch
+                    }
+                    for (event in watchKey.pollEvents()) {
+                        val changed = event.context() as Path
 
-                    for (pair in properties) {
-                        val key = pair.key.toString()
-                        val value = pair.value.toString()
+                        if (changed.endsWith(file.name)) {
+                            inputStream = file.inputStream()
+                            properties.load(inputStream)
 
-                        with(StringNode(value)) {
-                            if (map[key] != this) {
-                                map[key] = this
-                                channel.send(RawProperty(key, this))
+                            for (pair in properties) {
+                                val key = pair.key.toString()
+                                val value = pair.value.toString()
+
+                                with(StringNode(value)) {
+                                    if (map[key] != this) {
+                                        map[key] = this
+                                        channel.send(RawProperty(key, this))
+                                    }
+                                }
                             }
                         }
                     }
 
-                    watchKey.reset()
-                    properties.clear()
                     inputStream.close()
+                    properties.clear()
+                    if (!watchKey.reset()) {
+                        break
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
