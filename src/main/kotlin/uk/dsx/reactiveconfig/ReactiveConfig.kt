@@ -1,46 +1,95 @@
 package uk.dsx.reactiveconfig
 
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
-import kotlin.reflect.KProperty
 
-class ReactiveConfig(block: ReactiveConfig.() -> Unit) {
-    var manager: ConfigManager = ConfigManager()
-    var base: PropertyTypeBase = PropertyTypeBase(manager)
+class ReactiveConfig private constructor(val manager: ConfigManager) {
+    val logger = KotlinLogging.logger {}
 
-    init {
-        apply(block)
-    }
+    class Builder {
+        private val manager: ConfigManager = ConfigManager()
 
-    infix fun <T : Any> String.of(type: PropertyTypeBase.PropertyType<T>) {
-        ReloadableFactory.createReloadable(this, type, manager)
-    }
+        fun addSource(name: String, source: ConfigSource): Builder {
+            return apply {
+                manager.mapOfSources[name] = source
+                manager.addSource(source)
+            }
+        }
 
-    fun <T : Any> reloadable(key: String, type: PropertyTypeBase.PropertyType<T>): Reloadable<T> {
-        return ReloadableFactory.createReloadable(key, type, manager)
-    }
-
-    fun addConfigSource(source: ConfigSource) {
-        manager.addSource(source)
-    }
-}
-
-class PropertyTypeBase(val configManager: ConfigManager) {
-
-    inner class PropertyType<T : Any>(val initial: T, val parse: (String) -> T?) {
-        operator fun getValue(thisRef: Any?, property: KProperty<*>): Reloadable<T> {
-            return ReloadableFactory.createReloadable(property.name, this, configManager)
+        fun build(): ReactiveConfig {
+            return ReactiveConfig(manager)
         }
     }
 
-    val stringType = PropertyType("", { it })
+    inline operator fun <reified T> get(key: String, type: PropertyType<T>): Reloadable<T>? {
+        if (manager.mapOfProperties.containsKey(key)) {
+            with(manager.mapOfProperties[key]) {
+                return if (this!!.get() is T) {
+                    this as Reloadable<T>
+                } else {
+                    logger.error("You specified the wrong type of reloadable with key='$key' in method getReloadable: its value is not ${T::class.simpleName}")
+                    null
+                }
+            }
+        } else {
+            synchronized(this) {
+                if (!manager.mapOfProperties.containsKey(key)) {
+                    var isSet = false
+                    var initialValue: T = type.initial
 
-    val intType = PropertyType(0, String::toIntOrNull)
+                    for (source in manager.mapOfSources.values) {
+                        with(type.parse(source.getNode(key))) {
+                            when (this) {
+                                is ParseResult.Success -> {
+                                    initialValue = this.value as T
+                                    isSet = true
+                                }
+                                is ParseResult.Failure -> logger.error("Wrong type of property: $key")
+                            }
+                        }
 
-    val longType = PropertyType(0, String::toLongOrNull)
+                        if (isSet) break
+                    }
 
-    val floatType = PropertyType(0.0F, String::toFloatOrNull)
-
-    val doubleType = PropertyType(0.0, String::toDoubleOrNull)
-
-    val booleanType = PropertyType(false, String::toBoolean)
+                    if (isSet) {
+                        return Reloadable(
+                            initialValue,
+                            manager.flowOfChanges
+                                .filter { rawProperty: RawProperty ->
+                                    rawProperty.key == key
+                                }
+                                .map { rawProperty: RawProperty ->
+                                    type.parse(rawProperty.value).let {
+                                        when (it) {
+                                            is ParseResult.Success -> it.value
+                                            is ParseResult.Failure -> logger.error("Wrong type of property: $key")
+                                        }
+                                    }
+                                }
+                                .map {
+                                    it as T
+                                },
+                            manager.configScope
+                        ).also {
+                            manager.mapOfProperties[key] = it
+                        }
+                    } else {
+                        logger.error("Couldn't find property with key=$key in any config sources")
+                        return null
+                    }
+                } else {
+                    with(manager.mapOfProperties[key]) {
+                        return if (this!!.get() is T) {
+                            this as Reloadable<T>
+                        } else {
+                            logger.error("You specified the wrong type of reloadable with key='$key' in method getReloadable: its value is not ${T::class.simpleName}")
+                            null
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
