@@ -13,7 +13,8 @@ open class PropertyGroup {
         return classPath
     }
 
-    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$") ?: "-"
+    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$") ?:
+        throw IllegalArgumentException("Unexpected name of PropertyGroup")
 
     private fun name(): String = outer() + groupName()
 
