@@ -1,5 +1,7 @@
 package uk.dsx.reactiveconfig
 
+import java.lang.Exception
+
 sealed class Node
 data class ObjectNode(val value: MutableMap<String, Node?>) : Node()
 data class NumericNode(val value: String) : Node()
@@ -35,6 +37,11 @@ val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
 val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toInt())
+        is StringNode -> try {
+            return@PropertyType ParseResult.Success(node.value.toInt())
+        } catch (e: Exception) {
+            return@PropertyType ParseResult.Failure()
+        }
         else -> ParseResult.Failure()
     }
 })
@@ -42,6 +49,11 @@ val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
 val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toLong())
+        is StringNode -> try {
+            return@PropertyType ParseResult.Success(node.value.toLong())
+        } catch (e: Exception) {
+            return@PropertyType ParseResult.Failure()
+        }
         else -> ParseResult.Failure()
     }
 })
@@ -49,6 +61,11 @@ val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
 val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toFloat())
+        is StringNode -> try {
+            return@PropertyType ParseResult.Success(node.value.toFloat())
+        } catch (e: Exception) {
+            return@PropertyType ParseResult.Failure()
+        }
         else -> ParseResult.Failure()
     }
 })
@@ -56,6 +73,11 @@ val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
 val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toDouble())
+        is StringNode -> try {
+            return@PropertyType ParseResult.Success(node.value.toDouble())
+        } catch (e: Exception) {
+            return@PropertyType ParseResult.Failure()
+        }
         else -> ParseResult.Failure()
     }
 })
@@ -63,6 +85,11 @@ val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
 val booleanType: PropertyType<Boolean> = PropertyType(false, { node: Node? ->
     when (node) {
         is BooleanNode -> ParseResult.Success(node.value)
+        is StringNode -> try {
+            return@PropertyType ParseResult.Success(node.value.toBoolean())
+        } catch (e: Exception) {
+            return@PropertyType ParseResult.Failure()
+        }
         else -> ParseResult.Failure()
     }
 })

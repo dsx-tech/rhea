@@ -4,5 +4,6 @@
   "server" : {
     "name" : "serverName",
     "port" : 1234
-  }
+  },
+  "number" : 14
 }
