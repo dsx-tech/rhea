@@ -5,9 +5,12 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import mu.KotlinLogging
 import uk.dsx.reactiveconfig.interfaces.ConfigSource
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.EmptyCoroutineContext
+
+val reactiveConfigLogger = KotlinLogging.logger {}
 
 class ConfigManager {
     val configScope = CoroutineScope(EmptyCoroutineContext)
