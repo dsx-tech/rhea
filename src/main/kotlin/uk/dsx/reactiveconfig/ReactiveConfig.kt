@@ -7,8 +7,6 @@ import uk.dsx.reactiveconfig.interfaces.ConfigSource
 import kotlin.reflect.KProperty
 
 class ReactiveConfig private constructor(val manager: ConfigManager) {
-    val logger = KotlinLogging.logger {}
-
     class Builder {
         private val manager: ConfigManager = ConfigManager()
 
@@ -30,7 +28,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                 return if (this!!.get() is T) {
                     this as Reloadable<T>
                 } else {
-                    logger.error("You specified the wrong type of reloadable with key='$key' in method getReloadable: its value is not ${T::class.simpleName}")
+                    reactiveConfigLogger.error("Specified the wrong type of reloadable with key=$key: its value is not ${T::class.simpleName}")
                     null
                 }
             }
@@ -47,7 +45,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                                     initialValue = this.value as T
                                     isSet = true
                                 }
-                                is ParseResult.Failure -> logger.error("Wrong type of property: $key")
+                                is ParseResult.Failure -> reactiveConfigLogger.error("Wrong type of property: $key")
                             }
                         }
 
@@ -65,7 +63,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                                     type.parse(rawProperty.value).let {
                                         when (it) {
                                             is ParseResult.Success -> it.value
-                                            is ParseResult.Failure -> logger.error("Wrong type of property: $key")
+                                            is ParseResult.Failure -> reactiveConfigLogger.error("Wrong type of property: $key")
                                         }
                                     }
                                 }
@@ -77,7 +75,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                             manager.mapOfProperties[key] = it
                         }
                     } else {
-                        logger.error("Couldn't find property with key=$key in any config sources")
+                        reactiveConfigLogger.error("Couldn't find property with key=$key in any config sources")
                         return null
                     }
                 } else {
@@ -85,7 +83,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                         return if (this!!.get() is T) {
                             this as Reloadable<T>
                         } else {
-                            logger.error("You specified the wrong type of reloadable with key='$key' in method getReloadable: its value is not ${T::class.simpleName}")
+                            reactiveConfigLogger.error("Specified the wrong type of reloadable with key=$key: its value is not ${T::class.simpleName}")
                             null
                         }
                     }
@@ -94,5 +92,5 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
         }
     }
 
-    inline operator  fun <reified T> get(pair: Pair<PropertyType<T>, String>) = get(pair.second, pair.first)
+    inline operator fun <reified T> get(pair: Pair<PropertyType<T>, String>) = get(pair.second, pair.first)
 }
