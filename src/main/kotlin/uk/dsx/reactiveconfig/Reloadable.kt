@@ -6,12 +6,12 @@ import kotlinx.coroutines.launch
 
 class Reloadable<T>(
     @Volatile private var value: T,
-    private val flowOfChanges: Flow<T>,
+    private val flowOfValues: Flow<T>,
     private val scope: CoroutineScope
 ) {
     init {
         scope.launch {
-            flowOfChanges.collect { newValue: T ->
+            flowOfValues.collect { newValue: T ->
                 value = newValue
             }
         }
@@ -21,7 +21,7 @@ class Reloadable<T>(
 
     fun onChange(function: (T) -> Unit) {
         scope.launch {
-            flowOfChanges.collect { newValue: T ->
+            flowOfValues.collect { newValue: T ->
                 function(newValue)
             }
         }
@@ -29,7 +29,7 @@ class Reloadable<T>(
 
     fun <F> map(function: (T) -> (F)): Reloadable<F> {
         val newInitValue = function(this.value)
-        val newFlow = this.flowOfChanges.map { value ->
+        val newFlow = this.flowOfValues.map { value ->
             function(value)
         }
 
@@ -38,7 +38,7 @@ class Reloadable<T>(
 
     fun <F, G> combine(other: Reloadable<F>, function: (T, F) -> (G)): Reloadable<G> {
         val newInitValue = function(this.value, other.value)
-        val newFlow = this.flowOfChanges.combine(other.flowOfChanges) { val1: T, val2: F ->
+        val newFlow = this.flowOfValues.combine(other.flowOfValues) { val1: T, val2: F ->
             function(val1, val2)
         }
 

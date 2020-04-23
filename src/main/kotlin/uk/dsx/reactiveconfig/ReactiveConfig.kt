@@ -45,7 +45,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                                     initialValue = this.value as T
                                     isSet = true
                                 }
-                                is ParseResult.Failure -> reactiveConfigLogger.error("Wrong type of property: $key")
+                                is ParseResult.Failure -> reactiveConfigLogger.error("Invalid value of property with key=$key")
                             }
                         }
 
@@ -63,9 +63,12 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                                     type.parse(rawProperty.value).let {
                                         when (it) {
                                             is ParseResult.Success -> it.value
-                                            is ParseResult.Failure -> reactiveConfigLogger.error("Wrong type of property: $key")
+                                            is ParseResult.Failure -> reactiveConfigLogger.error("Invalid value of property with key=$key")
                                         }
                                     }
+                                }
+                                .filter {
+                                    it !is Unit
                                 }
                                 .map {
                                     it as T
