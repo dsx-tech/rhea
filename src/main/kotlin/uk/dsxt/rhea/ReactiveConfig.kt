@@ -1,10 +1,8 @@
-package uk.dsx.reactiveconfig
+package uk.dsxt.rhea
 
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import mu.KotlinLogging
-import uk.dsx.reactiveconfig.interfaces.ConfigSource
-import kotlin.reflect.KProperty
+import uk.dsxt.rhea.interfaces.ConfigSource
 
 class ReactiveConfig private constructor(val manager: ConfigManager) {
     class Builder {

@@ -1,9 +1,9 @@
-package uk.dsx.reactiveconfig
+package uk.dsxt.rhea
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
-import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import uk.dsxt.rhea.interfaces.ConfigSource
 
 class ConfigMock : ConfigSource {
     private lateinit var channel: SendChannel<RawProperty>

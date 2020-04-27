@@ -1,4 +1,4 @@
-package uk.dsx.reactiveconfig
+package uk.dsxt.rhea
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -6,7 +6,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import uk.dsxt.rhea.interfaces.ConfigSource
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.EmptyCoroutineContext
 
