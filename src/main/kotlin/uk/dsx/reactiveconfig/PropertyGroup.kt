@@ -1,4 +1,3 @@
-
 package uk.dsx.reactiveconfig
 
 import kotlin.reflect.KProperty
@@ -14,8 +13,10 @@ open class PropertyGroup {
         return classPath
     }
 
-    private fun groupName() = javaClass.kotlin.simpleName?.substringBefore("$") ?:
-        throw IllegalArgumentException("Unexpected name of PropertyGroup")
+    private val group = javaClass.kotlin.simpleName
+
+    private fun groupName() = group?.substringBefore("$") ?:
+    reactiveConfigLogger.error("Unexpected name $group")
 
     private fun name(): String = outer() + groupName()
 
