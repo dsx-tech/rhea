@@ -92,5 +92,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
         }
     }
 
+    fun dawd(key: String, type: PropertyType<T>) = get(key, type)
+
     inline operator fun <reified T> get(pair: Pair<PropertyType<T>, String>) = get(pair.second, pair.first)
 }
