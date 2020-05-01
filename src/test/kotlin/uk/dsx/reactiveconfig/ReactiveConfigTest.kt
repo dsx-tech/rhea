@@ -23,13 +23,8 @@ object ReactiveConfigTest : Spek({
     describe("typed access to mapOfProperties") {
         source.addToMap("prop", 3)
         val prop = config["prop", intType]
-
         it("sum of prop's value of reloadable from map and 7 should be 10") {
             assertEquals(10, config["prop", intType]!!.get() + 7)
-        }
-
-        it("null should be returned because of a wrong type specified") {
-            assertNull(config["prop", stringType])
         }
 
         it("null should be returned because property with key='propp' doesn't exist") {
