@@ -1,5 +1,4 @@
-
-package uk.dsx.reactiveconfig
+package uk.dsxt.rhea
 
 import kotlin.reflect.KProperty
 

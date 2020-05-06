@@ -1,12 +1,12 @@
-package uk.dsx.reactiveconfig.configsources
+package uk.dsxt.rhea.configsources
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import mu.KotlinLogging
-import uk.dsx.reactiveconfig.*
-import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import uk.dsxt.rhea.*
+import uk.dsxt.rhea.interfaces.ConfigSource
 import java.nio.file.*
 import java.io.*
 import java.util.*

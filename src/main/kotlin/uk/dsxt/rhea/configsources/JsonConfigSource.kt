@@ -1,18 +1,20 @@
-package uk.dsx.reactiveconfig.configsources
+package uk.dsxt.rhea.configsources
 
+import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import mu.KotlinLogging
-import org.yaml.snakeyaml.Yaml
-import uk.dsx.reactiveconfig.*
-import uk.dsx.reactiveconfig.interfaces.ConfigSource
+import uk.dsxt.rhea.*
+import uk.dsxt.rhea.interfaces.ConfigSource
 import java.io.File
 import java.io.IOException
 import java.nio.file.*
 
-class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
+class JsonConfigSource(directory: Path, fileName: String) : ConfigSource {
     private val file: File
     private lateinit var channel: SendChannel<RawProperty>
     private lateinit var configScope: CoroutineScope
@@ -20,6 +22,7 @@ class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
 
     private val watchService: WatchService = FileSystems.getDefault().newWatchService()
     private lateinit var watchKey: WatchKey
+    private val parser: Parser = Parser.default()
     private val logger = KotlinLogging.logger {}
 
     init {
@@ -39,13 +42,11 @@ class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
         if (file.exists()) {
             configScope.launch(newSingleThreadContext("watching thread")) {
                 try {
-                    val yaml = Yaml()
                     var inputStream = file.inputStream()
-                    var parsed =
-                        yaml.load(inputStream) as? Map<String, Any>
-                            ?: throw error("Failed to parse ${file.name}: file is not formatted correctly")
+                    var parsed = parser.parse(inputStream) as? JsonObject
+                        ?: throw error("Failed to parse ${file.name}: file is not formatted correctly")
 
-                    for (obj in parsed) {
+                    for (obj in parsed.map) {
                         map[obj.key] = toNode(obj.value)
                     }
                     inputStream.close()
@@ -58,10 +59,10 @@ class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
 
                             if (changed.endsWith(file.name)) {
                                 inputStream = file.inputStream()
-                                parsed = yaml.load(inputStream) as? Map<String, Any>
+                                parsed = parser.parse(inputStream) as? JsonObject
                                     ?: throw error("Failed to parse ${file.name}: file is not formatted correctly")
 
-                                for (obj in parsed) {
+                                for (obj in parsed.map) {
                                     with(toNode(obj.value)) {
                                         if (map[obj.key] != this) {
                                             map[obj.key] = this
@@ -91,6 +92,7 @@ class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
         }
     }
 
+
     override fun getNode(key: String): Node? {
         return map[key]
     }
@@ -102,17 +104,17 @@ class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
             is Float -> NumericNode(obj.toString())
             is Double -> NumericNode(obj.toString())
             is Boolean -> BooleanNode(obj)
-            is List<*> -> {
+            is JsonArray<*> -> {
                 val result = mutableListOf<Node?>()
-                for (el in obj) {
+                for (el in obj.value) {
                     result.add(toNode(el))
                 }
                 ArrayNode(result)
             }
-            is Map<*, *> -> {
+            is JsonObject -> {
                 val result = mutableMapOf<String, Node?>()
-                for (el in obj) {
-                    result[el.key.toString()] = toNode(el.value)
+                for (el in obj.map) {
+                    result[el.key] = toNode(el.value)
                 }
                 ObjectNode(result)
             }

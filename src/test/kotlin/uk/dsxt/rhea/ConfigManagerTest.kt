@@ -1,4 +1,4 @@
-package uk.dsx.reactiveconfig
+package uk.dsxt.rhea
 
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
