@@ -8,7 +8,7 @@ import uk.dsx.reactiveconfig.Reloadable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ReactiveConfigTest {
+class ReactiveConfigJavaTest {
     private ReactiveConfig config;
     private ConfigMock source;
 

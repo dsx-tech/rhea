@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class YamlConfigSourceTest {
+class YamlConfigSourceJavaTest {
     private YamlConfigSource yamlSource;
     private ReactiveConfig config;
     @BeforeEach

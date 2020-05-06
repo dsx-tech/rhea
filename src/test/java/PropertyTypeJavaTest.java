@@ -4,7 +4,7 @@ import uk.dsx.reactiveconfig.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PropertyTypeTest {
+class PropertyTypeJavaTest {
     private ReactiveConfig config;
     private ConfigMock source;
 
@@ -75,7 +75,7 @@ public class PropertyTypeTest {
     void doubleTypeTest() throws InterruptedException {
         source.addToMap("doubleProperty", 1515.0);
         Reloadable<Double>doubleProperty = config.get("doubleProperty", PropertyTypesKt.doubleType);
-
+        Thread.sleep(10);
         assertEquals(1515.0, doubleProperty.get());
     }
 

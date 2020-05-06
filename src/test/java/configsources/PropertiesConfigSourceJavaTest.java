@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PropertiesConfigSourceTest {
+class PropertiesConfigSourceJavaTest {
     private ConfigSource propertiesSource;
     private ReactiveConfig config;
 

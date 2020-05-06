@@ -3,7 +3,7 @@ import uk.dsx.reactiveconfig.ConfigManager;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ConfigManagerTest {
+class ConfigManagerJavaTest {
     @Test
     void notNullTest(){
         ConfigManager manager = new ConfigManager();
