@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm") version "1.3.41"
 }
 
-group = "uk.dsx.reactiveconfig"
+group = "uk.dsxt.rhea"
 version = "1.0-SNAPSHOT"
 
 repositories {
