@@ -1,8 +1,8 @@
-package uk.dsx.reactiveconfig.configsources
+package uk.dsxt.rhea.configsources
 
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import uk.dsx.reactiveconfig.*
+import uk.dsxt.rhea.*
 import java.io.File
 import java.nio.file.Paths
 import kotlin.test.assertEquals
@@ -10,7 +10,10 @@ import kotlin.test.assertTrue
 
 object JsonConfigSourceTest : Spek({
     val jsonSource =
-        JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json")
+        JsonConfigSource(
+            Paths.get("src" + File.separator + "test" + File.separator + "resources"),
+            "jsonSource.json"
+        )
 
     val config = ReactiveConfig.Builder()
         .addSource("jsonConfig", jsonSource)

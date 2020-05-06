@@ -1,7 +1,6 @@
-package uk.dsx.reactiveconfig
+package uk.dsxt.rhea
 
 import kotlin.reflect.KProperty
-import mu.KotlinLogging
 
 open class PropertyGroup {
     private fun outer(): String? {
