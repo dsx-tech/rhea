@@ -1,9 +1,9 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.dsx.reactiveconfig.ConfigMock;
-import uk.dsx.reactiveconfig.PropertyTypesKt;
-import uk.dsx.reactiveconfig.ReactiveConfig;
-import uk.dsx.reactiveconfig.Reloadable;
+import uk.dsxt.rhea.ConfigMock;
+import uk.dsxt.rhea.PropertyTypesKt;
+import uk.dsxt.rhea.ReactiveConfig;
+import uk.dsxt.rhea.Reloadable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReloadableJavaTest {

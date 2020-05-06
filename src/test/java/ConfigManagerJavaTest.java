@@ -1,5 +1,5 @@
 import org.junit.jupiter.api.Test;
-import uk.dsx.reactiveconfig.ConfigManager;
+import uk.dsxt.rhea.ConfigManager;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

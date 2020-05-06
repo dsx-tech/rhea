@@ -2,10 +2,10 @@ package configsources;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.dsx.reactiveconfig.PropertyTypesKt;
-import uk.dsx.reactiveconfig.ReactiveConfig;
-import uk.dsx.reactiveconfig.Reloadable;
-import uk.dsx.reactiveconfig.configsources.YamlConfigSource;
+import uk.dsxt.rhea.PropertyTypesKt;
+import uk.dsxt.rhea.ReactiveConfig;
+import uk.dsxt.rhea.Reloadable;
+import uk.dsxt.rhea.configsources.YamlConfigSource;
 
 import java.io.File;
 import java.nio.file.Paths;
