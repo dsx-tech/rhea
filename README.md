@@ -2,10 +2,10 @@
 **Rhea** is a type-safe dynamic configuration library for JVM  applications. This library uses *asynchronous data flows* that gives a natural auto-reloading feature in runtime, so it allows to change configuration properties and get the freshest values in your application without the need to restart.
 
 ## Features
-* Open source project under the Apache-2.0 License
+* Open source project under the MIT License
 * Extendable with user-defined property types
 * Extendable with user-defined configuration sources
-* Suppotrs .yaml, .properties, .json out of the box 
+* Supports .yaml, .properties, .json out of the box 
 
 ## Getting Started
 
@@ -30,7 +30,36 @@ dependencies {
 </dependencies>
 ```
 ## Usage
+### Java
+1. Build a configuration object that holds properties, add configuration sources 
 
+    ```java
+     ConfigSource jsonSource =
+        new JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json");
+        
+    ReactiveConfig config = new ReactiveConfig.Builder()
+        .addSource("jsonConfig", jsonSource)
+        .build();
+    ```
+2. Create reloadable properties 
+
+    ```java
+    Realoadable<Boolean> isSomethingOn = config.get("flag", PropertyTypesKt.booleanType);
+    Reloadable<Integer> port = config.get("port", PropertyTypesKt.intType);
+    
+    // access the freshest typed values with get()
+    Server server = new Server(port.get(), "host");
+    if (isSomethingOn.get()) {
+        server.start();
+    }
+    ```
+3. Also, you can add some complex logic that will execute every time the property is changed
+
+    ```java
+    port.onChange((Integer newValue) -> {
+        // for example, restart server
+    });
+    ```
 ### Kotlin
 1. Build a configuration object that holds properties, add configuration sources 
 
@@ -43,17 +72,20 @@ dependencies {
         .build()
     ```
 
-2. Create reloadable property or declare object that extends PropertyGroup to define hierarchies of properties
+2. Create reloadable properties or declare objects that extend PropertyGroup to define hierarchies of properties
 
     ```kotlin
     val isSomethingOn: Realoadable<Boolean> = config["flag", booleanType]
-    if (isSomethingOn.get()) {...}
-    
     object server : PropertyGroup() {
         val name by stringType
         val port by intType
     }
-    val server = Server(config[server.port].get(), config[server.name].get()).start()
+    
+    // access the freshest typed values with get()
+    val server = Server(config[server.port].get(), config[server.name].get())
+    if (isSomethingOn.get()) {
+        server.start()
+    }
     ```
 
 3. Also, you can add some complex logic that will execute every time the property is changed
@@ -62,9 +94,8 @@ dependencies {
     val port: Reloadable<Int> = config[server.port]
     
     port.onChange() {
-        server = server(it, config[server.name].get())
-        server.start()
-        }
+        // for example, restart server
+    }
     ```
 ## Extending
 ### Property Types
@@ -80,7 +111,7 @@ To support a new configuration source, you should implement ConfigSource interfa
 * **Philipp Dolgolev** - [GitHub account](https://github.com/phil-dolgolev)
 
 ## License
-This project is licensed under the Apache-2.0 License. The full text could be found in [LICENSE.md](https://github.com/dsx-tech/rhea/blob/master/LICENSE).
+This project is licensed under the MIT License. The full text could be found in [LICENSE.md](https://github.com/dsx-tech/rhea/blob/master/LICENSE).
 
 ## Acknowledgments
 * Inspired by Tinkoff ReactiveConfig and [Konfig](https://github.com/npryce/konfig)
