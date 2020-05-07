@@ -1,5 +1,5 @@
 # Rhea
-**Rhea** is a type-safe dynamic configuration library for JVM  applications. This library uses *asynchronous data flows* that gives a natural auto-reloading feature in runtime, so it allows to change configuration properties and get the freshest values in your application without the need to restart.
+**Rhea** is a type-safe dynamic configuration library for JVM applications. This library uses *asynchronous data flows* that gives a natural auto-reloading feature in runtime, so it allows to change configuration properties and get the freshest values in your application without the need to restart.
 
 ## Features
 * Open source project under the MIT License
@@ -44,7 +44,7 @@ dependencies {
 2. Create reloadable properties 
 
     ```java
-    Realoadable<Boolean> isSomethingOn = config.get("flag", PropertyTypesKt.booleanType);
+    Reloadable<Boolean> isSomethingOn = config.get("flag", PropertyTypesKt.booleanType);
     Reloadable<Integer> port = config.get("port", PropertyTypesKt.intType);
     
     // access the freshest typed values with get()
