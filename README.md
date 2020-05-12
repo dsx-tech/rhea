@@ -34,7 +34,7 @@ dependencies {
 1. Build a configuration object that holds properties, add configuration sources 
 
     ```java
-     ConfigSource jsonSource =
+    ConfigSource jsonSource =
         new JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json");
         
     ReactiveConfig config = new ReactiveConfig.Builder()
@@ -64,7 +64,7 @@ dependencies {
 1. Build a configuration object that holds properties, add configuration sources 
 
     ```kotlin
-     val jsonSource: ConfigSource =
+    val jsonSource: ConfigSource =
         JsonConfigSource(Paths.get("src" + File.separator + "test" + File.separator + "resources"), "jsonSource.json")
         
     val config: ReactiveConfig = ReactiveConfig.Builder()

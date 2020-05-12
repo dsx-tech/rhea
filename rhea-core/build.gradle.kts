@@ -1,0 +1,1 @@
+project.ext.set("artifactName", "rhea-core")

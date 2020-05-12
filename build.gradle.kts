@@ -4,31 +4,39 @@ plugins {
     kotlin("jvm") version "1.3.41"
 }
 
-group = "uk.dsxt.rhea"
-version = "1.0-SNAPSHOT"
+buildscript {
+    group = "uk.dsxt"
+    version = "1.0"
 
-repositories {
-    mavenCentral()
-    jcenter()
+    dependencies {
+        classpath(kotlin("gradle-plugin", "1.3.41"))
+    }
 }
 
-dependencies {
-    val spekVersion = "2.0.8"
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "kotlin")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0")
-    implementation(kotlin("stdlib-jdk8"))
-    implementation("com.beust:klaxon:5.0.1")
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
 
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
-    testImplementation(kotlin("test"))
-    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
-    testRuntimeOnly(kotlin("reflect"))
+    dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0")
+        implementation(kotlin("stdlib-jdk8"))
 
-    compile("org.slf4j:slf4j-simple:1.7.26")
-    compile("io.github.microutils:kotlin-logging:1.7.8")
-    compile("org.yaml:snakeyaml:1.18")
-}
+        testImplementation("org.spekframework.spek2:spek-dsl-jvm:2.0.8")
+        testImplementation(kotlin("test"))
+        testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:2.0.8")
+        testRuntimeOnly(kotlin("reflect"))
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+        compile("org.slf4j:slf4j-simple:1.7.26")
+        compile("io.github.microutils:kotlin-logging:1.7.8")
+
+    }
+
+    tasks.withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 }
