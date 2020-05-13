@@ -1,1 +1,3 @@
-project.ext.set("artifactName", "rhea-core")
+tasks.jar {
+    archiveBaseName.set("rhea-core")
+}
