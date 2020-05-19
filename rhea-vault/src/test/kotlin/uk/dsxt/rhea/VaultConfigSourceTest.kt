@@ -6,19 +6,25 @@ import kotlin.test.assertEquals
 
 object VaultConfigSourceTest : Spek({
     val secretPath = "secret/hello"
+
     val vaultConfigSource =
-        VaultConfigSource("http://127.0.0.1:8200", "s.gRq9zyaNMFkfceaGAWhU5SEX", secretPath)
+        VaultConfigSource.Builder()
+            .withToken("s.gRq9zyaNMFkfceaGAWhU5SEX")
+            .withAddress("http://127.0.0.1:8200")
+            .withSecretPath(secretPath)
+            .build()
 
     val config = ReactiveConfig.Builder()
         .addSource("vaultSource", vaultConfigSource)
         .build()
 
-    describe("checks reading properly string property") {
-        val newProperties = HashMap<String, Any>()
-        newProperties["foo"] = "world"
-        vaultConfigSource.vault.logical().write(secretPath, newProperties)
+    val newProperties = HashMap<String, Any>()
+    newProperties["foo"] = "world"
+    newProperties["num"] = 14
+    vaultConfigSource.vault.logical().write(secretPath, newProperties)
 
-        Thread.sleep(150)
+    describe("checks reading properly string property") {
+        Thread.sleep(500)
         val reloadable = config["foo", stringType]
 
         it("should contain value 'world' sent from VaultConfigSource") {
@@ -27,11 +33,6 @@ object VaultConfigSourceTest : Spek({
     }
 
     describe("checks reading properly integer property") {
-        val newProperties = HashMap<String, Any>()
-        newProperties["num"] = 14
-        vaultConfigSource.vault.logical().write(secretPath, newProperties)
-
-        Thread.sleep(150)
         val reloadable = config["num", intType]
 
         it("should contain value '14' sent from VaultConfigSource") {
