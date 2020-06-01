@@ -12,6 +12,9 @@ import java.io.*
 import java.util.*
 import kotlin.collections.HashMap
 
+/**
+ * [ConfigSource] that reads configuration from .properties.
+ */
 class PropertiesConfigSource(directory: Path, fileName: String) : ConfigSource {
     private var file: File
     private lateinit var channel: SendChannel<RawProperty>

@@ -8,12 +8,16 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import mu.KotlinLogging
-import uk.dsxt.rhea.*
-import uk.dsxt.rhea.ConfigSource
 import java.io.File
 import java.io.IOException
 import java.nio.file.*
 
+/**
+ * [ConfigSource] that reads configuration from .json.
+ *
+ * @param directory directory where configuration file is located
+ * @param fileName configuration file name
+ */
 class JsonConfigSource(directory: Path, fileName: String) : ConfigSource {
     private val file: File
     private lateinit var channel: SendChannel<RawProperty>
@@ -91,7 +95,6 @@ class JsonConfigSource(directory: Path, fileName: String) : ConfigSource {
             logger.error("No such file or directory ${file.absolutePath}. \n Subscription to ${file.name} failed")
         }
     }
-
 
     override fun getNode(key: String): Node? {
         return map[key]

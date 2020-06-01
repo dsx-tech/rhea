@@ -12,6 +12,12 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.*
 
+/**
+ * [ConfigSource] that reads configuration from .yaml.
+ *
+ * @param directory directory where configuration file is located
+ * @param fileName configuration file name
+ */
 class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
     private val file: File
     private lateinit var channel: SendChannel<RawProperty>

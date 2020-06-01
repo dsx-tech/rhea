@@ -12,6 +12,9 @@ sealed class ParseResult<T> {
     class Failure<T> : ParseResult<T>()
 }
 
+/**
+ * @return [PropertyType] that allows value to be null
+ */
 fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
     return PropertyType(initial, { node: Node? ->
         parse(node).let { result: ParseResult<T?> ->
@@ -25,6 +28,9 @@ fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
 
 class PropertyType<T>(val initial: T, val parse: (Node?) -> ParseResult<T?>)
 
+/**
+ * The type of string property
+ */
 val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
     when (node) {
         is StringNode -> ParseResult.Success(node.value)
@@ -32,6 +38,9 @@ val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
     }
 })
 
+/**
+ * The type of int property
+ */
 val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toInt())
@@ -44,6 +53,9 @@ val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
     }
 })
 
+/**
+ * The type of long property
+ */
 val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toLong())
@@ -56,6 +68,9 @@ val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
     }
 })
 
+/**
+ * The type of float property
+ */
 val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toFloat())
@@ -68,6 +83,9 @@ val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
     }
 })
 
+/**
+ * The type of double property
+ */
 val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toDouble())
@@ -80,6 +98,9 @@ val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
     }
 })
 
+/**
+ * The type of boolean property
+ */
 val booleanType: PropertyType<Boolean> = PropertyType(false, { node: Node? ->
     when (node) {
         is BooleanNode -> ParseResult.Success(node.value)
