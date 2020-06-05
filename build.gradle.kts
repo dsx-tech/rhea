@@ -26,7 +26,6 @@ buildscript {
     }
 }
 
-
 subprojects {
     apply(plugin = "java")
     apply(plugin = "kotlin")
@@ -86,7 +85,7 @@ subprojects {
 
     publishing {
         publications {
-            create<MavenPublication>("mavenJava") {
+            create<MavenPublication>("rheaPublication") {
 
                 pom {
                     name.set("Rhea")
@@ -104,15 +103,29 @@ subprojects {
 
                     developers {
                         developer {
-                            id.set("johnd")
-                            name.set("John Doe")
-                            email.set("john.doe@example.com")
+                            id.set("dmitryv")
+                            name.set("Dmitry Vologin")
+                            email.set("dmit.vologin@gmail.com")
+                        }
+                        developer {
+                            id.set("alexandrao")
+                            name.set("Alexandra Osipova")
+                            email.set("alexosipova13@gmail.com")
+                        }
+                        developer {
+                            id.set("antonp")
+                            name.set("Anton Plotnikov")
+                            email.set("plotnikovanton@gmail.com")
+                        }
+                        developer {
+                            id.set("philippd")
+                            name.set("Philipp Dolgolev")
+                            email.set("phil.dolgolev@gmail.com")
                         }
                     }
 
                     scm {
                         connection.set("scm:git:git:dsx-tech/rhea.git")
-                        developerConnection.set("scm:git:ssh:dsx-tech/rhea.git")
                         url.set("https://github.com/dsx-tech/rhea")
                     }
                 }
@@ -121,43 +134,49 @@ subprojects {
 
         repositories {
             maven {
-                name = "myRepo"
-                url = uri("file://${buildDir}/repo")
-            }
-        }
+                val ossrhUsername = rootProject.findProperty("ossrhUsername") as String? ?: ""
+                val ossrhPassword = rootProject.findProperty("ossrhPassword") as String? ?: ""
 
-        signing {
-            sign(publishing.publications["mavenJava"])
-        }
-
-        gradle.taskGraph.whenReady {
-            if (allTasks.any { it is Sign }) {
-                // Use Java's console to read from the console (no good for
-                // a CI environment)
-                val console = System.console()
-                console.printf(
-                    "\n\nWe have to sign some things in this build." +
-                            "\n\nPlease enter your signing details.\n\n"
-                )
-
-                val id = console.readLine("PGP Key Id: ")
-                val file = console.readLine("PGP Secret Key Ring File (absolute path): ")
-                val password = console.readPassword("PGP Priva./te Key Password: ")
-
-                allprojects {
-                    extra["signing.keyId"] = id
-                    extra["signing.secretKeyRingFile"] = file
-                    extra["signing.password"] = password
+                val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+                val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+                url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
                 }
-
-                console.printf("\nThanks.\n\n")
             }
         }
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+    signing {
+        sign(publishing.publications["rheaPublication"])
     }
+
+    gradle.taskGraph.whenReady {
+        if (allTasks.any { it is Sign }) {
+            val console = System.console()
+            console.printf(
+                "\nWe have to sign some things in this build." +
+                        "\nPlease enter your signing details.\n"
+            )
+
+            val id = console.readLine("PGP Key Id: ")
+            val file = console.readLine("PGP Secret Key Ring File (absolute path): ")
+            val password = console.readPassword("PGP Private Key Password: ")
+
+            allprojects {
+                extra["signing.keyId"] = id
+                extra["signing.secretKeyRingFile"] = file
+                extra["signing.password"] = password
+            }
+
+            console.printf("\nThanks.\n\n")
+        }
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 tasks.named<Wrapper>("wrapper") {
