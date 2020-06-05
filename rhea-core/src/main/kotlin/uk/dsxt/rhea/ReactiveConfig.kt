@@ -1,5 +1,6 @@
 package uk.dsxt.rhea
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 
@@ -23,6 +24,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
          * @param name human-readable name of configuration source
          * @return this instance of builder with provided source added
          */
+        @ExperimentalCoroutinesApi
         fun addSource(name: String, source: ConfigSource): Builder {
             return apply {
                 manager.mapOfSources[name] = source
@@ -45,6 +47,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
      * @param type the type of provided property
      * @return new instance of [Reloadable]
      */
+    @ExperimentalCoroutinesApi
     inline operator fun <reified T> get(key: String, type: PropertyType<T>): Reloadable<T>? {
         if (manager.mapOfProperties.containsKey(key)) {
             with(manager.mapOfProperties[key]) {

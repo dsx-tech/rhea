@@ -1,6 +1,7 @@
 package uk.dsxt.rhea
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -62,6 +63,7 @@ class Reloadable<T>(
      * @param function the function to apply
      * @return new Reloadable
      */
+    @ExperimentalCoroutinesApi
     fun <F, G> combine(other: Reloadable<F>, function: (T, F) -> (G)): Reloadable<G> {
         val newInitValue = function(this.value, other.value)
         val newFlow = this.flowOfChanges.combine(other.flowOfChanges) { val1: T, val2: F ->

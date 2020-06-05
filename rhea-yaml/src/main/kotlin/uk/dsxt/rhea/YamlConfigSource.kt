@@ -1,6 +1,7 @@
 package uk.dsxt.rhea
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
@@ -38,6 +39,7 @@ class YamlConfigSource(directory: Path, fileName: String) : ConfigSource {
         file = File(directory.toAbsolutePath().toString() + File.separator + fileName)
     }
 
+    @ObsoleteCoroutinesApi
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
         channel = channelOfChanges
         configScope = scope
