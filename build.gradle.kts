@@ -3,7 +3,7 @@ import org.jetbrains.dokka.gradle.DokkaTask
 
 plugins {
     kotlin("jvm") version "1.3.41" apply false
-    id("org.jetbrains.dokka") version "0.10.1"
+    id("org.jetbrains.dokka") version "0.10.1" apply false
     `maven-publish`
     signing
     java
@@ -17,7 +17,7 @@ buildscript {
     }
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -47,20 +47,13 @@ subprojects {
         implementation("org.slf4j:slf4j-simple:1.7.26")
         implementation("io.github.microutils:kotlin-logging:1.7.8")
 
-        dokkaRuntime("org.jetbrains.dokka:dokka-fatjar:0.10.1")
-
         testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
         testImplementation(kotlin("test"))
         testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
         testRuntimeOnly(kotlin("reflect"))
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-
     tasks {
-
         val sourcesJar by creating(Jar::class) {
             archiveClassifier.set("sources")
             from(sourceSets.main.get().allSource)
@@ -69,14 +62,24 @@ subprojects {
         val dokka by getting(DokkaTask::class) {
             outputFormat = "javadoc"
             outputDirectory = "$buildDir/dokka"
+
             configuration {
                 jdkVersion = 8
             }
         }
 
+        val javadocJar by creating(Jar::class) {
+            dependsOn(dokka)
+            archiveClassifier.set("javadoc")
+            from("$buildDir/dokka")
+        }
+
+        group = rootProject.ext["artifactGroup"] as String
+        version = rootProject.ext["artifactVersion"] as String
+
         artifacts {
             archives(sourcesJar)
-            //archives("$buildDir/dokka")
+            archives(javadocJar)
             archives(jar)
         }
     }
@@ -84,8 +87,6 @@ subprojects {
     publishing {
         publications {
             create<MavenPublication>("mavenJava") {
-                group = rootProject.ext["artifactGroup"] as String
-                version = rootProject.ext["artifactVersion"] as String
 
                 pom {
                     name.set("Rhea")
@@ -157,4 +158,9 @@ subprojects {
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
+}
+
+tasks.named<Wrapper>("wrapper") {
+    gradleVersion = "5.2.1"
+    distributionUrl = "https://services.gradle.org/distributions/gradle-5.2.1-bin.zip"
 }
