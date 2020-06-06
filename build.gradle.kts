@@ -72,20 +72,17 @@ subprojects {
             archiveClassifier.set("javadoc")
             from("$buildDir/dokka")
         }
-
-        group = rootProject.ext["artifactGroup"] as String
-        version = rootProject.ext["artifactVersion"] as String
-
-        artifacts {
-            archives(sourcesJar)
-            archives(javadocJar)
-            archives(jar)
-        }
     }
 
+    group = rootProject.ext["artifactGroup"] as String
+    version = rootProject.ext["artifactVersion"] as String
+    
     publishing {
         publications {
             create<MavenPublication>("rheaPublication") {
+                artifact(tasks["sourcesJar"])
+                artifact(tasks["javadocJar"])
+                artifact(tasks["jar"])
 
                 pom {
                     name.set("Rhea")
@@ -134,11 +131,12 @@ subprojects {
 
         repositories {
             maven {
-                val ossrhUsername = rootProject.findProperty("ossrhUsername") as String? ?: ""
-                val ossrhPassword = rootProject.findProperty("ossrhPassword") as String? ?: ""
+                val ossrhUsername: String by rootProject
+                val ossrhPassword: String by rootProject
 
                 val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
                 val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+
                 url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
                 credentials {
                     username = ossrhUsername
@@ -150,28 +148,6 @@ subprojects {
 
     signing {
         sign(publishing.publications["rheaPublication"])
-    }
-
-    gradle.taskGraph.whenReady {
-        if (allTasks.any { it is Sign }) {
-            val console = System.console()
-            console.printf(
-                "\nWe have to sign some things in this build." +
-                        "\nPlease enter your signing details.\n"
-            )
-
-            val id = console.readLine("PGP Key Id: ")
-            val file = console.readLine("PGP Secret Key Ring File (absolute path): ")
-            val password = console.readPassword("PGP Private Key Password: ")
-
-            allprojects {
-                extra["signing.keyId"] = id
-                extra["signing.secretKeyRingFile"] = file
-                extra["signing.password"] = password
-            }
-
-            console.printf("\nThanks.\n\n")
-        }
     }
 }
 
