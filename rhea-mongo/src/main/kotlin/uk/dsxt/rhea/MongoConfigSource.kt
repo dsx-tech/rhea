@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import java.sql.Connection
 import com.mongodb.MongoException
+import kotlinx.coroutines.delay
 import org.bson.Document
 
 class MongoConfigSource(private val url : String,private val database: String, private val scheme : String) : ConfigSource {
@@ -36,6 +37,7 @@ class MongoConfigSource(private val url : String,private val database: String, p
             val collection = db.getCollection(scheme)
 
             configScope.launch {
+                delay(1000)
                 collection.find().forEach{
                     it.forEach{
                         map[it.key] = toNode(it.value)
