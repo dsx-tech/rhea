@@ -24,7 +24,7 @@ class MongoConfigSource(private val url : String,private val database: String, p
         try{
             client = MongoClients.create(url)
         }
-        catch(e : Exception){
+        catch(e : MongoException){
             logger.error("Couldn't connect to database with this url: \"${url}\". Values from this place are no longer updates")
         }
     }
