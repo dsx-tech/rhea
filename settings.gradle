@@ -1,6 +1,4 @@
 rootProject.name = 'rhea'
 
-include 'rhea-core', 'rhea-json', 'rhea-yaml'
-include 'rhea-jdbc'
-findProject(':rhea-jdbc')?.name = 'rhea'
+include 'rhea-core', 'rhea-json', 'rhea-yaml', 'rhea-jdbc', 'rhea-mongo'
 

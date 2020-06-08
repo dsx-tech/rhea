@@ -8,14 +8,13 @@ import kotlinx.coroutines.newSingleThreadContext
 import mu.KotlinLogging
 import java.sql.*
 
-class JDBCConfigSource(url : String, scheme : String) : ConfigSource {
+class JDBCConfigSource(private val url : String,private val scheme : String) : ConfigSource {
 
     private lateinit var connection : Connection
     private lateinit var channel: SendChannel<RawProperty>
     private lateinit var configScope: CoroutineScope
     private val map: HashMap<String, Node?> = HashMap()
     private val logger = KotlinLogging.logger {}
-    private val table = scheme
 
     init{
         try{
@@ -40,10 +39,10 @@ class JDBCConfigSource(url : String, scheme : String) : ConfigSource {
         if (!connection.isClosed){
             configScope.launch(newSingleThreadContext("watching thread")) {
                 try{
-                    if (table.contains(" ")){
-                        throw error("Incorrect name of scheme: \"${table}\". Values from this place are no longer updates")
+                    if (scheme.contains(" ")){
+                        throw error("Incorrect name of scheme: \"${scheme}\". Values from this place are no longer updates")
                     }
-                    var query = "SELECT * FROM $table"
+                    var query = "SELECT * FROM $scheme"
                     val statement = connection.createStatement()
                     var result = statement.executeQuery(query)
 
@@ -90,7 +89,7 @@ class JDBCConfigSource(url : String, scheme : String) : ConfigSource {
                     }
                 }
                 catch(e : SQLException){
-                    logger.error("Failed reading from $table scheme. Values from this place are no longer updates")
+                    logger.error("Failed reading from $scheme scheme. Values from this place are no longer updates")
                 }
                 catch(e : Exception){
                     logger.error(e.message)
