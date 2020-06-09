@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 object JDBCConfigSourceTest : Spek({
-    val connection = DriverManager.getConnection("jdbc:h2:~/test", "test", "test")
+    val connection = DriverManager.getConnection("jdbc:h2:mem:db_test", "test", "test")
     val statement = connection.createStatement()
 
     statement.execute("CREATE TABLE IF NOT EXISTS testtable1(first_key VARCHAR(50), first_value VARCHAR(50), update_time VARCHAR(50))")
@@ -17,13 +17,13 @@ object JDBCConfigSourceTest : Spek({
     statement.execute("INSERT INTO testtable2 VALUES('tableTwo', 1)")
 
     val jdbcSourceOne = JDBCConfigSource(
-        "jdbc:h2:~/test",
+        "jdbc:h2:mem:db_test",
         "test",
         "test",
         "testtable1"
     )
     val jdbcSourceTwo = JDBCConfigSource(
-        "jdbc:h2:~/test",
+        "jdbc:h2:mem:db_test",
         "test",
         "test",
         "testtable2"
