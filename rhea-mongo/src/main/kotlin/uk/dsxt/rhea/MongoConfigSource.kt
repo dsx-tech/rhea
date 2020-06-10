@@ -10,6 +10,7 @@ import mu.KotlinLogging
 import java.sql.Connection
 import com.mongodb.MongoException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.newSingleThreadContext
 import org.bson.Document
 
 class MongoConfigSource(private val url : String,private val database: String, private val scheme : String) : ConfigSource {
@@ -31,30 +32,36 @@ class MongoConfigSource(private val url : String,private val database: String, p
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
         channel = channelOfChanges
         configScope = scope
+        configScope.launch(newSingleThreadContext("watching thread")) {
+            try {
+                db = client.getDatabase(database)
+                val collection = db.getCollection(scheme)
 
-        try{
-            db = client.getDatabase(database)
-            val collection = db.getCollection(scheme)
-
-            configScope.launch {
-                delay(1000)
-                collection.find().forEach{
-                    it.forEach{
-                        map[it.key] = toNode(it.value)
-                    }
-                }
-                while(true){
-                    collection.find().forEach{
-                        it.forEach{
+                configScope.launch {
+                    delay(1000)
+                    collection.find().forEach {
+                        it.forEach {
                             map[it.key] = toNode(it.value)
                         }
                     }
+                    while (true) {
+                        collection.find().forEach {
+                            it.forEach {
+                                with(toNode(it.value)) {
+                                    if (map[it.key] != this)
+                                        map[it.key] = toNode(it.value)
+                                    channel.send(RawProperty(it.key, this))
+                                }
+                            }
+                        }
+                    }
                 }
+            } catch (e: MongoException) {
+                logger.error(
+                    "Failed reading from $url, $database database, $scheme scheme. Values from this place are no longer updates\nMore detailed infrmation:\n"
+                            + e.message
+                )
             }
-        }
-        catch(e : MongoException){
-            logger.error("Failed reading from $url, $database database, $scheme scheme. Values from this place are no longer updates\nMore detailed infrmation:\n"
-                    + e.message)
         }
     }
 
