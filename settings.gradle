@@ -1,4 +1,3 @@
 rootProject.name = 'rhea'
 
-include 'rhea-core', 'rhea-json', 'rhea-yaml', 'rhea-jdbc', 'rhea-mongo'
-
+include 'rhea-core', 'rhea-json', 'rhea-yaml', 'rhea-jdbc', 'rhea-mongo', 'rhea-vault'
