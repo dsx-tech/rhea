@@ -25,6 +25,7 @@ fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
 
 class PropertyType<T>(val initial: T, val parse: (Node?) -> ParseResult<T?>)
 
+@JvmField
 val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
     when (node) {
         is StringNode -> ParseResult.Success(node.value)
@@ -32,6 +33,7 @@ val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
     }
 })
 
+@JvmField
 val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toInt())
@@ -44,6 +46,7 @@ val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
     }
 })
 
+@JvmField
 val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toLong())
@@ -56,6 +59,7 @@ val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
     }
 })
 
+@JvmField
 val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toFloat())
@@ -68,6 +72,7 @@ val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
     }
 })
 
+@JvmField
 val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
     when (node) {
         is NumericNode -> ParseResult.Success(node.value.toDouble())
@@ -80,6 +85,7 @@ val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
     }
 })
 
+@JvmField
 val booleanType: PropertyType<Boolean> = PropertyType(false, { node: Node? ->
     when (node) {
         is BooleanNode -> ParseResult.Success(node.value)

@@ -20,15 +20,10 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
         }
     }
 
-    inline operator fun <reified T> get(key: String, type: PropertyType<T>): Reloadable<T>? {
+    operator fun <T> get(key: String, type: PropertyType<T>): Reloadable<T>? {
         if (manager.mapOfProperties.containsKey(key)) {
             with(manager.mapOfProperties[key]) {
-                return if (this!!.get() is T) {
-                    this as Reloadable<T>
-                } else {
-                    reactiveConfigLogger.error("Specified the wrong type of reloadable with key=$key: its value is not ${T::class.simpleName}")
-                    null
-                }
+                return this as Reloadable<T>
             }
         } else {
             synchronized(this) {
@@ -78,17 +73,12 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
                     }
                 } else {
                     with(manager.mapOfProperties[key]) {
-                        return if (this!!.get() is T) {
-                            this as Reloadable<T>
-                        } else {
-                            reactiveConfigLogger.error("Specified the wrong type of reloadable with key=$key: its value is not ${T::class.simpleName}")
-                            null
-                        }
+                        return this as Reloadable<T>
                     }
                 }
             }
         }
     }
 
-    inline operator fun <reified T> get(pair: Pair<PropertyType<T>, String>) = get(pair.second, pair.first)
+    operator fun <T> get(pair: Pair<PropertyType<T>, String>) = get(pair.second, pair.first)
 }

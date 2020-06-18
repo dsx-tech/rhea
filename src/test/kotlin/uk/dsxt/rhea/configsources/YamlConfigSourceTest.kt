@@ -18,7 +18,7 @@ object YamlConfigSourceTest : Spek({
     val config = ReactiveConfig.Builder()
         .addSource("yamlConfig", yamlSource)
         .build()
-
+    Thread.sleep(100)
     describe("checks reading properly string property") {
         val job = config["job", stringType]
 
@@ -29,6 +29,7 @@ object YamlConfigSourceTest : Spek({
 
     describe("checks reading properly integer property") {
         val number = config["age", intType]
+        while (number == null) {}
 
         it("should contain value 13 sent from YamlConfigSource") {
             assertEquals(27, number!!.get())
