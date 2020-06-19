@@ -22,7 +22,7 @@ object ReactiveConfigTest : Spek({
 
     describe("typed access to mapOfProperties") {
         source.addToMap("prop", 3)
-        val prop = config["prop", intType]
+        config["prop", intType]
 
         it("sum of prop's value of reloadable from map and 7 should be 10") {
             assertEquals(10, config["prop", intType]!!.get() + 7)
@@ -37,7 +37,7 @@ object ReactiveConfigTest : Spek({
         }
 
         source.addToMap("prop1", true)
-        val prop1 = config["prop1", booleanType]
+        config["prop1", booleanType]
 
         it("value of reloadable with key='prop1' from map should be 'true'") {
             assertTrue(config["prop1", booleanType]!!.get())

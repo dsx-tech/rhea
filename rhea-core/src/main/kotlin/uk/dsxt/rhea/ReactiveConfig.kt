@@ -1,12 +1,30 @@
 package uk.dsxt.rhea
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 
+/**
+ * [ConfigSource] that reads configuration from Vault.
+ *
+ * **Note: use [Builder] to build instances of this class.
+ */
 class ReactiveConfig private constructor(val manager: ConfigManager) {
+
+    /**
+     * Builder for [ReactiveConfig].
+     */
     class Builder {
         private val manager: ConfigManager = ConfigManager()
 
+        /**
+         * Adds configuration [source] in [ReactiveConfig]s built.
+         *
+         * @param source the configuration source to add
+         * @param name human-readable name of configuration source
+         * @return this instance of builder with provided source added
+         */
+        @ExperimentalCoroutinesApi
         fun addSource(name: String, source: ConfigSource): Builder {
             return apply {
                 manager.mapOfSources[name] = source
@@ -14,11 +32,22 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
             }
         }
 
+        /**
+         * Builds a [ReactiveConfig] using this builder
+         *
+         * @return new instance of [ReactiveConfig]
+         */
         fun build(): ReactiveConfig {
             return ReactiveConfig(manager)
         }
     }
 
+    /**
+     * @param key the key of property that will be reloadable
+     * @param type the type of provided property
+     * @return new instance of [Reloadable]
+     */
+    @ExperimentalCoroutinesApi
     inline operator fun <reified T> get(key: String, type: PropertyType<T>): Reloadable<T>? {
         if (manager.mapOfProperties.containsKey(key)) {
             with(manager.mapOfProperties[key]) {

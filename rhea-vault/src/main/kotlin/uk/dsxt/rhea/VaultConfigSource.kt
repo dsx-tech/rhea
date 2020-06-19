@@ -9,6 +9,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
+/**
+ * [ConfigSource] that reads configuration from Vault.
+ *
+ * **Note: use [Builder] to build instances of this class.
+ */
 class VaultConfigSource : ConfigSource {
     var vault: Vault
     private var secretPath: String
@@ -29,7 +34,11 @@ class VaultConfigSource : ConfigSource {
         this.secretPath = secretPath
         this.reloadTimeMillis = reloadTimeMillis
     }
-
+    /**
+     * Builder for [VaultConfigSource].
+     *
+     * **Note: provide builder with secretPath and either configured [Vault] or just address and token.
+     */
     class Builder {
         private lateinit var vault: Vault
         private lateinit var address: String
@@ -37,36 +46,71 @@ class VaultConfigSource : ConfigSource {
         private lateinit var secretPath: String
         private var reloadTimeMillis: Long = 0
 
+        /**
+         * Sets Vault address for [VaultConfigSource]s built by the builder.
+         *
+         * @param address address to use
+         * @return this instance of builder with Vault address set to provided parameter
+         */
         fun withAddress(address: String): Builder {
             return apply {
                 this.address = address
             }
         }
 
+        /**
+         * Sets Vault token for [VaultConfigSource]s built by the builder.
+         *
+         * @param token token to use
+         * @return this instance of builder with Vault token set to provided parameter
+         */
         fun withToken(token: String): Builder {
             return apply {
                 this.token = token
             }
         }
 
+        /**
+         * Sets Vault secretPath for [VaultConfigSource]s built by the builder.
+         *
+         * @param secretPath secretPath to use
+         * @return this instance of builder with Vault secretPath set to provided parameter
+         */
         fun withSecretPath(secretPath: String): Builder {
             return apply {
                 this.secretPath = secretPath
             }
         }
 
+        /**
+         * Sets Vault reloadTime for [VaultConfigSource]s built by the builder.
+         *
+         * @param reloadTime reloadTime that configures intervals of time in which [VaultConfigSource] checks for changes
+         * @return this instance of builder with reloadTime set to provided parameter
+         */
         fun withReloadTime(reloadTime: Long): Builder {
             return apply {
                 this.reloadTimeMillis = reloadTime
             }
         }
 
+        /**
+         * Sets Vault for [VaultConfigSource]s built by the builder.
+         *
+         * @param vault Vault to use
+         * @return this instance of builder with Vault set to provided parameter
+         */
         fun withVault(vault: Vault): Builder {
             return apply {
                 this.vault = vault
             }
         }
 
+        /**
+         * Builds a [VaultConfigSource] using this builder
+         *
+         * @return new instance of [VaultConfigSource]
+         */
         fun build(): VaultConfigSource {
             if (!::vault.isInitialized) {
                 val vaultConfig = VaultConfig().address(address).token(token).build()

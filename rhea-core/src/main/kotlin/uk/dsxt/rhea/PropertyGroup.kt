@@ -2,6 +2,9 @@ package uk.dsxt.rhea
 
 import kotlin.reflect.KProperty
 
+/**
+ * Allows to define hierarchies of properties
+ */
 open class PropertyGroup {
     private fun outer(): String? {
         var classPointer = this::class.java.enclosingClass?.kotlin?.objectInstance as? PropertyGroup

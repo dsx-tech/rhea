@@ -1,6 +1,7 @@
 package uk.dsxt.rhea
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
@@ -12,6 +13,9 @@ import java.io.*
 import java.util.*
 import kotlin.collections.HashMap
 
+/**
+ * [ConfigSource] that reads configuration from .properties.
+ */
 class PropertiesConfigSource(directory: Path, fileName: String) : ConfigSource {
     private var file: File
     private lateinit var channel: SendChannel<RawProperty>
@@ -32,6 +36,7 @@ class PropertiesConfigSource(directory: Path, fileName: String) : ConfigSource {
         file = File(directory.toAbsolutePath().toString() + File.separator + fileName)
     }
 
+    @ObsoleteCoroutinesApi
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
         channel = channelOfChanges
         configScope = scope
