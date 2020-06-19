@@ -1,2 +1,3 @@
-rootProject.name = 'reactiveconfig'
+rootProject.name = 'rhea'
 
+include 'rhea-core', 'rhea-json', 'rhea-yaml', 'rhea-jdbc', 'rhea-mongo', 'rhea-vault'
