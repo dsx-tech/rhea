@@ -13,22 +13,26 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
 import org.bson.Document
 
-class MongoConfigSource(private val url : String,private val database: String, private val scheme : String) : ConfigSource {
+/**
+ * [ConfigSource] that reads configuration from MongoDB.
+ */
+class MongoConfigSource(private val url: String, private val database: String, private val scheme: String) :
+    ConfigSource {
     private lateinit var channel: SendChannel<RawProperty>
     private lateinit var configScope: CoroutineScope
-    private lateinit var client : MongoClient
-    private lateinit var db : MongoDatabase
+    private lateinit var client: MongoClient
+    private lateinit var db: MongoDatabase
     private val map: HashMap<String, Node?> = HashMap()
     private val logger = KotlinLogging.logger {}
 
-    init{
-        try{
+    init {
+        try {
             client = MongoClients.create(url)
-        }
-        catch(e : MongoException){
+        } catch (e: MongoException) {
             logger.error("Couldn't connect to database with this url: \"${url}\". Values from this place are no longer updates")
         }
     }
+
     override suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope) {
         channel = channelOfChanges
         configScope = scope
@@ -78,14 +82,14 @@ class MongoConfigSource(private val url : String,private val database: String, p
             is Boolean -> BooleanNode(obj)
             is ArrayList<*> -> {
                 val result = mutableListOf<Node?>()
-                obj.forEach{
+                obj.forEach {
                     result.add(toNode(it))
                 }
                 ArrayNode(result)
             }
             is Document -> {
                 val result = mutableMapOf<String, Node?>()
-                obj.forEach{
+                obj.forEach {
                     result[it.key] = toNode(it.value)
                 }
                 ObjectNode(result)

@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
- * Contains the latest value of type T and updates it every time the value is changed in configuration
+ * Contains the latest value of type T and updates it every time the value is changed in configuration.
  *
- * @param T the type of entity
- * @param value the latest value of entity
+ * @param T the type of property
+ * @param value the latest value of property
  * @param flowOfChanges the flow with typed values
  * @param scope the scope where coroutines will be launched
  */
@@ -27,7 +27,7 @@ class Reloadable<T>(
     }
 
     /**
-     * @return the latest value of entity
+     * @return the latest value.
      */
     fun get() = value
 

@@ -41,9 +41,7 @@ class ReactiveConfig private constructor(val manager: ConfigManager) {
     }
 
     /**
-     * @param key the key of property that will be reloadable
-     * @param type the type of provided property
-     * @return new instance of [Reloadable]
+     * @return [Reloadable] that holds the freshest value of property with given [key] and [type].
      */
     operator fun <T> get(key: String, type: PropertyType<T>): Reloadable<T>? {
         if (manager.mapOfProperties.containsKey(key)) {

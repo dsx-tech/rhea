@@ -13,7 +13,7 @@ sealed class ParseResult<T> {
 }
 
 /**
- * @return [PropertyType] that allows value to be null
+ *  @return [PropertyType] that allows value to be null.
  */
 fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
     return PropertyType(initial, { node: Node? ->
@@ -26,10 +26,13 @@ fun <T> PropertyType<T>.nullable(): PropertyType<T?> {
     })
 }
 
+/**
+ * Represents type of property that has some default value [initial] and [parse] function.
+ */
 class PropertyType<T>(val initial: T, val parse: (Node?) -> ParseResult<T?>)
 
 /**
- * The type of string property
+ * The type of string property.
  */
 @JvmField
 val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
@@ -40,7 +43,7 @@ val stringType: PropertyType<String> = PropertyType("", { node: Node? ->
 })
 
 /**
- * The type of int property
+ * The type of int property.
  */
 @JvmField
 val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
@@ -56,7 +59,7 @@ val intType: PropertyType<Int> = PropertyType(0, { node: Node? ->
 })
 
 /**
- * The type of long property
+ * The type of long property.
  */
 @JvmField
 val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
@@ -72,7 +75,7 @@ val longType: PropertyType<Long> = PropertyType(0L, { node: Node? ->
 })
 
 /**
- * The type of float property
+ * The type of float property.
  */
 @JvmField
 val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
@@ -88,7 +91,7 @@ val floatType: PropertyType<Float> = PropertyType(0.0F, { node: Node? ->
 })
 
 /**
- * The type of double property
+ * The type of double property.
  */
 @JvmField
 val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
@@ -104,7 +107,7 @@ val doubleType: PropertyType<Double> = PropertyType(0.0, { node: Node? ->
 })
 
 /**
- * The type of boolean property
+ * The type of boolean property.
  */
 @JvmField
 val booleanType: PropertyType<Boolean> = PropertyType(false, { node: Node? ->

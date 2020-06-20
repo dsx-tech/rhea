@@ -6,28 +6,31 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import mu.KotlinLogging
+import uk.dsxt.rhea.ReactiveConfig.Builder
 import java.sql.*
 
-class JDBCConfigSource(private val url : String,private val scheme : String) : ConfigSource {
-
-    private lateinit var connection : Connection
+/**
+ * [ConfigSource] that reads configuration from JDBC.
+ */
+class JDBCConfigSource(private val url: String, private val scheme: String) : ConfigSource {
+    private lateinit var connection: Connection
     private lateinit var channel: SendChannel<RawProperty>
     private lateinit var configScope: CoroutineScope
     private val map: HashMap<String, Node?> = HashMap()
     private val logger = KotlinLogging.logger {}
 
-    init{
-        try{
+    init {
+        try {
             connection = DriverManager.getConnection(url)
-        } catch (e : SQLException) {
+        } catch (e: SQLException) {
             logger.error("Couldn't connect to database with this url: \"${url}\". Values from this place are no longer updates")
         }
     }
 
-    constructor(url : String, login : String, password : String, scheme: String) : this(url, scheme){
-        try{
+    constructor(url: String, login: String, password: String, scheme: String) : this(url, scheme) {
+        try {
             connection = DriverManager.getConnection(url, login, password)
-        } catch (e : SQLException) {
+        } catch (e: SQLException) {
             logger.error("Couldn't connect to database with this url: \"${url}\". Values from this place are no longer updates")
         }
     }
@@ -36,10 +39,10 @@ class JDBCConfigSource(private val url : String,private val scheme : String) : C
         channel = channelOfChanges
         configScope = scope
 
-        if (!connection.isClosed){
+        if (!connection.isClosed) {
             configScope.launch(newSingleThreadContext("watching thread")) {
-                try{
-                    if (scheme.contains(" ")){
+                try {
+                    if (scheme.contains(" ")) {
                         throw error("Incorrect name of scheme: \"${scheme}\". Values from this place are no longer updates")
                     }
                     var query = "SELECT * FROM $scheme"
@@ -47,12 +50,12 @@ class JDBCConfigSource(private val url : String,private val scheme : String) : C
                     var result = statement.executeQuery(query)
 
                     val columnNumber = result.metaData.columnCount
-                    val updateColumnName : String
+                    val updateColumnName: String
                     var latestUpdate = 3
 
-                    while (result.next()){
+                    while (result.next()) {
                         map[result.getString(1)] = toNode(result.getObject(2))
-                        if (columnNumber == 3){
+                        if (columnNumber == 3) {
                             with(result.getInt(3)) {
                                 if (this > latestUpdate) {
                                     latestUpdate = this
@@ -66,19 +69,19 @@ class JDBCConfigSource(private val url : String,private val scheme : String) : C
                         query += " WHERE $updateColumnName > "
                     }
 
-                    while(true){
+                    while (true) {
                         delay(1000)
-                        if (columnNumber == 3){
+                        if (columnNumber == 3) {
                             result = statement.executeQuery(query + "$latestUpdate")
                         }
-                        while (result.next()){
+                        while (result.next()) {
                             val first = result.getString(1)
                             val second = toNode(result.getObject(2))
-                            if(map[first] != second){
+                            if (map[first] != second) {
                                 map[first] = second
                                 channel.send(RawProperty(first, second))
                             }
-                            if (columnNumber == 3){
+                            if (columnNumber == 3) {
                                 with(result.getInt(3)) {
                                     if (this > latestUpdate) {
                                         latestUpdate = this
@@ -87,11 +90,9 @@ class JDBCConfigSource(private val url : String,private val scheme : String) : C
                             }
                         }
                     }
-                }
-                catch(e : SQLException){
+                } catch (e: SQLException) {
                     logger.error("Failed reading from $scheme scheme. Values from this place are no longer updates")
-                }
-                catch(e : Exception){
+                } catch (e: Exception) {
                     logger.error(e.message)
                 }
             }

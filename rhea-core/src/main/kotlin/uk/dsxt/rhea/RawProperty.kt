@@ -1,9 +1,6 @@
 package uk.dsxt.rhea
 
 /**
- * Holds key and value of property from [ConfigSource]
- *
- * @param key key of property
- * @param value [Node] that holds value of property
+ * Holds property's [key] and [value] wrapped in [Node].
  */
 class RawProperty(val key: String, val value: Node?)

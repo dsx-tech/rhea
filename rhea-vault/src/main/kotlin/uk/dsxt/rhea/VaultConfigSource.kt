@@ -34,10 +34,11 @@ class VaultConfigSource : ConfigSource {
         this.secretPath = secretPath
         this.reloadTimeMillis = reloadTimeMillis
     }
+
     /**
      * Builder for [VaultConfigSource].
      *
-     * **Note: provide builder with secretPath and either configured [Vault] or just address and token.
+     * **Note: please, provide builder with secretPath and either configured [Vault] or just address and token.
      */
     class Builder {
         private lateinit var vault: Vault
@@ -47,9 +48,8 @@ class VaultConfigSource : ConfigSource {
         private var reloadTimeMillis: Long = 0
 
         /**
-         * Sets Vault address for [VaultConfigSource]s built by the builder.
+         * Sets Vault [address] for [VaultConfigSource]s built by the builder.
          *
-         * @param address address to use
          * @return this instance of builder with Vault address set to provided parameter
          */
         fun withAddress(address: String): Builder {
@@ -59,9 +59,8 @@ class VaultConfigSource : ConfigSource {
         }
 
         /**
-         * Sets Vault token for [VaultConfigSource]s built by the builder.
+         * Sets Vault [token] for [VaultConfigSource]s built by the builder.
          *
-         * @param token token to use
          * @return this instance of builder with Vault token set to provided parameter
          */
         fun withToken(token: String): Builder {
@@ -71,9 +70,8 @@ class VaultConfigSource : ConfigSource {
         }
 
         /**
-         * Sets Vault secretPath for [VaultConfigSource]s built by the builder.
+         * Sets Vault [secretPath] for [VaultConfigSource]s built by the builder.
          *
-         * @param secretPath secretPath to use
          * @return this instance of builder with Vault secretPath set to provided parameter
          */
         fun withSecretPath(secretPath: String): Builder {
@@ -83,7 +81,7 @@ class VaultConfigSource : ConfigSource {
         }
 
         /**
-         * Sets Vault reloadTime for [VaultConfigSource]s built by the builder.
+         * Sets Vault [reloadTime] for [VaultConfigSource]s built by the builder.
          *
          * @param reloadTime reloadTime that configures intervals of time in which [VaultConfigSource] checks for changes
          * @return this instance of builder with reloadTime set to provided parameter
@@ -95,9 +93,8 @@ class VaultConfigSource : ConfigSource {
         }
 
         /**
-         * Sets Vault for [VaultConfigSource]s built by the builder.
+         * Sets [vault] for [VaultConfigSource]s built by the builder.
          *
-         * @param vault Vault to use
          * @return this instance of builder with Vault set to provided parameter
          */
         fun withVault(vault: Vault): Builder {

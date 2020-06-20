@@ -8,18 +8,18 @@ import kotlinx.coroutines.channels.SendChannel
  */
 interface ConfigSource {
     /**
-     * Provides initial values from configuration store for [getNode] and starts a new coroutine that watches changes of configuration values.
+     * Provides initial values from configuration store for [getNode] and starts a new coroutine in [scope],
+     * watches changes of configuration values and transfers them through [channelOfChanges] to [ReactiveConfig].
      *
-     * @param channelOfChanges the channel where changes of values will be sent
+     * @param channelOfChanges the channel where changes of values will be sent to
      * @param scope the scope where a new coroutine that watches changes of configuration should be launched
      */
     suspend fun subscribe(channelOfChanges: SendChannel<RawProperty>, scope: CoroutineScope)
 
     /**
-     * Provides initial value of property to construct [Reloadable].
+     * Provides initial value of property with given [key] to construct [Reloadable].
      *
-     * @param key the key of property
-     * @return the Node that holds [RawProperty]
+     * @return [Node] that holds [RawProperty] with initial value
      */
     fun getNode(key: String): Node?
 }
