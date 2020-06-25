@@ -140,16 +140,13 @@ subprojects {
 
         repositories {
             maven {
-                val ossrhUsername: String by rootProject
-                val ossrhPassword: String by rootProject
-
                 val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
                 val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
 
                 url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
                 credentials {
-                    username = ossrhUsername
-                    password = ossrhPassword
+                    username = findProperty("ossrhUsername") as String?
+                    password = findProperty("ossrhPassword") as String?
                 }
             }
         }
