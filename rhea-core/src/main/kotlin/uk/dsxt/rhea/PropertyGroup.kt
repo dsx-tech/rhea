@@ -18,7 +18,7 @@ open class PropertyGroup {
 
     private val group = javaClass.kotlin.simpleName
 
-    private fun groupName() = group?.substringBefore("$") ?: reactiveConfigLogger.error("Unexpected name $group")
+    private fun groupName() = group?.substringBefore("$") ?: ReactiveConfig.reactiveConfigLogger.error("Unexpected name $group")
 
     private fun name(): String = outer() + groupName()
 
