@@ -88,7 +88,7 @@ subprojects {
 
     publishing {
         publications {
-            create<MavenPublication>("rheaPublication") {
+            create<MavenPublication>("rhea") {
                 artifact(tasks["sourcesJar"])
                 artifact(tasks["javadocJar"])
                 artifact(tasks["jar"])
@@ -153,7 +153,7 @@ subprojects {
     }
 
     signing {
-        sign(publishing.publications["rheaPublication"])
+        sign(publishing.publications["rhea"])
     }
 }
 

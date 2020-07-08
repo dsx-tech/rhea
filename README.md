@@ -5,17 +5,17 @@
 * Open source project under the MIT License
 * Extendable with user-defined property types
 * Extendable with user-defined configuration sources
-* Supports .yaml, .properties, .json out of the box 
+* Supports reading configuration from files (.yaml, .properties, .json), Vault, JDBC, MongoDB
 
 ## Getting Started
 
 ### Setting up dependency
-To get started, add `uk.dsxt:rhea:<version>` as a dependency:
+To get started, add `uk.dsxt:rhea-core:<version>` as a dependency:
 
 #### Gradle
 ```groovy
 dependencies {
-  compile group: "uk.dsxt", name:"rhea", version: "1.0-SNAPSHOT"
+  compile group: "uk.dsxt", name:"rhea-core", version: "0.0.1-SNAPSHOT"
 }
 ```
 
@@ -24,11 +24,37 @@ dependencies {
 <dependencies>
   <dependency>
     <groupId>uk.dsxt</groupId>
-    <artifactId>rhea</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>rhea-core</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
   </dependency>
 </dependencies>
 ```
+### Configuration Sources
+To read configuration from source other than .properties, add its rhea module as a dependency.
+For example, to add .json as configuration source:
+
+#### Gradle
+```groovy
+dependencies {
+  ...
+  compile group: "uk.dsxt", name:"rhea-json", version: "0.0.1-SNAPSHOT"
+}
+```
+
+#### Maven
+```xml
+<dependencies>
+    ...
+  <dependency>
+    <groupId>uk.dsxt</groupId>
+    <artifactId>rhea-json</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </dependency>
+</dependencies>
+```
+
+Note: If configuration source is not supported, you can add it by implementing ConfigSource interface.
+                                                                                    
 ## Usage
 ### Java
 1. Build a configuration object that holds properties, add configuration sources 
