@@ -43,7 +43,7 @@ class PropertyTypeJavaTest {
         Reloadable<String> stringProperty = config.get("stringProperty", PropertyTypesKt.stringType);
 
         source.pushChanges("stringProperty", "something2");
-        Thread.sleep(10);
+        Thread.sleep(50);
 
         assertEquals("something2", stringProperty.get());
     }
